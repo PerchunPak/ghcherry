@@ -19,12 +19,11 @@ validation = [
   "ruff~=0.15.6",
 ]
 
-
 [tool.uv]
 default-groups = ["dev", "validation"]
 
 [project.scripts]
-nix-cherry-pick = "patcher.cli:app"
+gh-cherry-pick = "gh_cherry_pick.__main__:app"
 
 [tool.ruff]
 target-version = "py314"
