@@ -61,6 +61,14 @@ function get-flake-input-attr {
   echo "$result"
 }
 
+function get-flake-input-repo {
+  local flake_lock="$1" input_name="$2"
+  local repo_owner repo_name
+  repo_owner=$(get-flake-input-attr "$flake_lock" "$input_name" original.owner)
+  repo_name=$(get-flake-input-attr "$flake_lock" "$input_name" original.repo)
+  echo "$repo_owner/$repo_name"
+}
+
 function main() {
   local commits=() source_input target_input
 
@@ -123,12 +131,16 @@ function main() {
     echo "  $commit"
   done
 
-  local flake_lock source_rev
+  local flake_lock source_rev target_repo_owner target_repo_name target_repo target_branch
   flake_lock=$(read-flake-lock)
   source_rev=$(get-flake-input-attr "$flake_lock" "$source_input" locked.rev)
-  target_branch=$(get-flake-input-attr "$flake_lock" "$source_input" original.ref)
+  source_repo=$(get-flake-input-repo "$flake_lock" "$source_input")
+  target_repo=$(get-flake-input-repo "$flake_lock" "$target_input")
+  target_branch=$(get-flake-input-attr "$flake_lock" "$target_input" original.ref)
 
   echo "Source rev: $source_rev"
+  echo "Source repo: $source_repo"
+  echo "Target repo: $target_repo"
   echo "Target branch: $target_branch"
 }
 
