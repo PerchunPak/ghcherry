@@ -1,0 +1,138 @@
+[project]
+name = "gh-cherry-pick"
+version = "0.1.0"
+requires-python = ">=3.14"
+dependencies = [
+  "cyclopts~=4.10.0",
+  "PyGithub~=2.8.1",
+  "loguru~=0.7.3",
+]
+
+[dependency-groups]
+dev = [
+  "pytest~=9.0.2",
+  "pytest-mock~=3.15.1",
+]
+
+validation = [
+  "basedpyright~=1.38.3",
+  "ruff~=0.15.6",
+]
+
+
+[tool.uv]
+default-groups = ["dev", "validation"]
+
+[project.scripts]
+nix-cherry-pick = "patcher.cli:app"
+
+[tool.ruff]
+target-version = "py314"
+line-length = 83
+
+[tool.ruff.lint]
+select = ["ALL"]
+
+ignore = [
+  "A",       # Shadowing builtins
+  "ANN401",  # Usage of typing.Any
+  "ARG",     # Unused argument; already handled by basedpyright
+  "C90",     # {name} is too complex
+  "COM812",  # Missing trailing comma (in multiline lists/tuples/...)
+  "D203",    # Blank line required before class docstring
+  "D213",    # Multiline docstring summary should start at the second line
+  "EM",      # Very weird rules for using exceptions
+  "FIX",     # Line contains TODO, consider resolving the issue
+  "PLR09",   # {name} is too complex
+  "PLR2004", # Magic value used in comparison
+  "RET504",  # Unnecessary assignment to a variable before `return` statement
+  "S101",    # Use of `assert` detected
+  "S311",    # Standard pseudo-random generators are not suitable for cryptographic purposes
+  "TD002",   # Missing author in TODO
+  "TD003",   # Missing issue link for this TODO
+  "TRY003",  # Avoid specifying long messages outside the exception class
+
+  "D100", # Missing docstring in public module
+  "D101", # Missing docstring in public class
+  "D102", # Missing docstring in public method
+  "D103", # Missing docstring in public function
+  "D104", # Missing docstring in public package
+  "D105", # Missing docstring in magic method
+  "D106", # Missing docstring in public nested class
+  "D107", # Missing docstring in __init__
+  "D413", # Missing blank line after last section
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = [
+  "ANN",    # flake8-annotations
+  "FBT001", # Boolean-typed positional argument in function definition
+  "SLF001", # Private member accessed
+  "T201",   # Usage of `print`
+]
+
+[tool.ruff.lint.isort]
+order-by-type = false
+case-sensitive = true
+combine-as-imports = true
+
+# Redundant rules with ruff-format
+force-single-line = false       # forces all imports to appear on their own line
+force-wrap-aliases = false      # Split imports with multiple members and at least one alias
+lines-after-imports = -1        # The number of blank lines to place after imports
+lines-between-types = 0         # Number of lines to place between "direct" and import from imports
+split-on-trailing-comma = false # if last member of multiline import has a comma, don't fold it to single line
+
+[tool.ruff.lint.flake8-implicit-str-concat]
+allow-multiline = false
+
+[tool.ruff.lint.flake8-annotations]
+allow-star-arg-any = true
+
+[tool.ruff.format]
+line-ending = "lf"
+
+
+[tool.basedpyright]
+pythonPlatform = "Linux"
+pythonVersion = "3.13"
+typeCheckingMode = "all"
+exclude = [
+  ".venv",
+  "data",
+]
+
+# Diagnostic behavior settings
+strictListInference = false
+strictDictionaryInference = false
+strictSetInference = false
+analyzeUnannotatedFunctions = false
+strictParameterNoneValue = true
+deprecateTypingAliases = true      # only applies up to pythonVersion
+enableExperimentalFeatures = false
+disableBytesTypePromotions = true
+
+# Diagnostic rules
+reportAny = false
+reportExplicitAny = false
+reportImplicitStringConcatenation = false
+reportInvalidCast = false
+reportUnreachable = "information"
+reportUnknownArgumentType = false
+reportUnknownVariableType = true
+reportUnknownMemberType = false
+reportUnknownParameterType = true
+reportUnknownLambdaType = true
+reportMissingTypeStubs = "information"
+reportUninitializedInstanceVariable = true
+reportMissingParameterType = false # ruff's flake8-annotations (ANN) already covers this + gives us more control
+reportImportCycles = false # tests catch that
+
+executionEnvironments = [
+  { root = "tests", reportPrivateUsage = false },
+  { root = "src" },
+]
+
+[build-system]
+requires = ["uv_build>=0.10.9,<0.11.0"]
+build-backend = "uv_build"
