@@ -31,6 +31,7 @@ EOF
 }
 
 function curl-gh {
+  echo "+ curl $@" >&2
   curl -sL \
     -H "Accept: application/vnd.github+json" \
     -H "Authorization: Bearer $GITHUB_TOKEN" \
@@ -41,7 +42,7 @@ function curl-gh {
 function read-flake-lock {
   local meta=$(nix flake metadata --json)
 
-  lock_version=$(echo "$meta" | jq -j .locks.version)
+  lock_version=$(echo "$meta" | jq -ej .locks.version)
   if [ "$lock_version" -ne 7 ]; then
     echo "WARNING: expected lock version 7 but got $lock_version" >&2
   fi
@@ -53,7 +54,7 @@ function read-flake-lock {
 # this is a separate function, so I don't have to duplicate the error message
 function get-flake-input-attr {
   local flake_lock="$1" input="$2" attr="$3" result
-  result=$(echo "$flake_lock" | jq -r ".locks.nodes.\"$input\".$attr")
+  result=$(echo "$flake_lock" | jq -er ".locks.nodes.\"$input\".$attr")
   if [ "$result" = "null" ]; then
     echo "Input $input does not exist, check your flake.nix" >&2
     exit 1
@@ -131,7 +132,7 @@ function main() {
     echo "  $commit"
   done
 
-  local flake_lock source_rev target_repo_owner target_repo_name target_repo target_branch
+  local flake_lock source_rev source_repo target_repo target_branch
   flake_lock=$(read-flake-lock)
   source_rev=$(get-flake-input-attr "$flake_lock" "$source_input" locked.rev)
   source_repo=$(get-flake-input-repo "$flake_lock" "$source_input")
@@ -142,6 +143,75 @@ function main() {
   echo "Source repo: $source_repo"
   echo "Target repo: $target_repo"
   echo "Target branch: $target_branch"
+
+  for commit in "${commits[@]}"; do
+    echo "Cherry-picking $commit..."
+    commit_message=$(
+      curl-gh "https://api.github.com/repos/$target_repo/commits/$commit" \
+      | jq -er .commit.message
+    )
+    echo "Message: $commit_message"
+    # replace new lines with literal \n
+    commit_message=$(echo "$commit_message" | sed '$ ! s/$/\\n/' | tr -d '\n')
+    commit_message+="\n(cherry picked from commit $commit)"
+
+    echo "Sleeping for 10 seconds, so GitHub API gets some time to catch-up"
+    sleep 10
+
+    # thanks to https://stackoverflow.com/a/58672227/22235705!
+    source_rev_tree=$(
+      curl-gh "https://api.github.com/repos/$source_repo/commits/$source_rev" \
+      | jq -er .commit.tree.sha
+    )
+
+    target_parent_rev=$(
+      curl-gh "https://api.github.com/repos/$target_repo/commits/$commit" \
+        | jq -er '.parents[0].sha'
+    )
+    temp_commit=$(
+      curl-gh "https://api.github.com/repos/$target_repo/git/commits" \
+        -X POST \
+        -d "{\"message\": \"temp\", \"tree\": \"$source_rev_tree\", \"parents\": [\"$target_parent_rev\"]}" \
+        | jq -er .sha
+    )
+
+    # delete temp branch in case if it exists
+    curl-gh "https://api.github.com/repos/$target_repo/git/refs/heads/$target_branch-temp" \
+      -X DELETE &> /dev/null || true
+
+    curl-gh "https://api.github.com/repos/$target_repo/git/refs" \
+      -X POST \
+      -d "{\"ref\": \"refs/heads/$target_branch-temp\", \"sha\": \"$temp_commit\"}" \
+      > /dev/null
+
+    merge_tree_sha=$(
+      curl-gh "https://api.github.com/repos/$target_repo/merges" \
+        -X POST \
+        -d "{\"base\": \"$target_branch-temp\", \"head\": \"$commit\"}" \
+      | jq -er '.commit.tree.sha'
+    )
+
+    # cleanup the temp branch
+    curl-gh "https://api.github.com/repos/$target_repo/git/refs/heads/$target_branch-temp" \
+      -X DELETE &> /dev/null || true
+
+    cherry_rev=$(
+      curl-gh "https://api.github.com/repos/$target_repo/git/commits" \
+        -X POST \
+        -d "{\"message\": \"$commit_message\", \"tree\": \"$merge_tree_sha\", \"parents\": [\"$source_rev\"]}" \
+      | jq -er .sha
+    )
+
+    result_sha=$(
+      curl-gh "https://api.github.com/repos/$target_repo/git/refs/heads/$target_branch" \
+        -X PATCH \
+        -d "{\"sha\": \"$cherry_rev\", \"force\": true}" \
+      | jq -er .object.sha
+    )
+    echo "Result commit: $result_sha"
+
+    source_rev="$result_sha"
+  done
 }
 
 main "$@"
