@@ -1,0 +1,71 @@
+ci:
+  autofix_commit_msg: "[pre-commit.ci] auto fixes from pre-commit.com hooks"
+  autofix_prs: true
+  autoupdate_commit_msg: "[pre-commit.ci] pre-commit autoupdate"
+  autoupdate_schedule: weekly
+  submodules: false
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: check-merge-conflict
+      - id: check-toml # For pyproject.toml
+      - id: check-yaml # For workflows
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+        args: [--markdown-linebreak-ext=md]
+      - id: end-of-file-fixer
+      - id: mixed-line-ending
+      - id: sort-simple-yaml
+
+  - repo: local
+    hooks:
+      - id: ruff
+        name: Ruff Linter
+        description: Run ruff checks on the code
+        entry: ruff check --force-exclude
+        language: system
+        types: [python]
+        require_serial: true
+        args: [--fix, --exit-non-zero-on-fix]
+
+  - repo: local
+    hooks:
+      - id: ruff-ruff
+        name: Ruff Formatter
+        description: Ruf ruff auto-formatter
+        entry: ruff format
+        language: system
+        types: [python]
+        require_serial: true
+
+  - repo: local
+    hooks:
+      - id: basedpyright
+        name: basedpyright
+        description: Run basedpyright type checker
+        entry: basedpyright
+        language: system
+        types: [python]
+        pass_filenames: false
+
+  - repo: local
+    hooks:
+      - id: uv-lockfile
+        name: UV Lockfile
+        description: Check if the UV lockfile is up to date with pyproject.toml
+        entry: uv lock --check
+        language: system
+        files: '^pyproject\.toml$|^uv\.lock$'
+        pass_filenames: false
+
+  - repo: local
+    hooks:
+      - id: pytest
+        name: Tests
+        description: Run tests
+        entry: pytest
+        language: system
+        types: [python]
+        pass_filenames: false
