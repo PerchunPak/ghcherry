@@ -2,28 +2,22 @@ import cyclopts.utils
 import pytest
 import pytest_mock
 
-from gh_cherry_pick.commit_parser import Commit, Target
+from gh_cherry_pick.commit_parser import Commit
 
 
-@pytest.mark.parametrize(
-    "commit",
-    ["2d55dd4", "2d55dd4a29e74aed8399b0fe4ba638370dd881d9"],
-    ids=["short-sha", "long-sha"],
-)
 @pytest.mark.parametrize(
     ("input", "output"),
     [
-        # user can use different separators
-        ("repo/name/", ("repo", "name")),
-        ("repo/name#", ("repo", "name")),
-        ("repo/name@", ("repo", "name")),
+        ("repo/name/2d55dd4", ("repo", "name", "2d55dd4")),
+        (
+            "repo/name/2d55dd4a29e74aed8399b0fe4ba638370dd881d9",
+            ("repo", "name", "2d55dd4a29e74aed8399b0fe4ba638370dd881d9"),
+        ),
     ],
-    ids=["/", "#", "@"],
+    ids=["short-sha", "long-sha"],
 )
-def test_commit_parser_separator(
-    input: str, commit: str, output: tuple[str, str]
-) -> None:
-    assert Commit.parse(input + commit) == Commit(*output, commit)
+def test_commit_parser(input: str, output: tuple[str, str, str]) -> None:
+    assert Commit.parse(input) == Commit(*output)
 
 
 def test_invalid_sha() -> None:
@@ -44,6 +38,7 @@ def test_invalid_sha() -> None:
         "foo/",
         "foo,@bar",
         "foo/bar",
+        "foo/bar@baz",
     ],
 )
 def test_invalid_input(input: str) -> None:
@@ -61,10 +56,6 @@ def test_repo_property() -> None:
 
 def test_commit_repr_property() -> None:
     assert Commit("foo", "bar", "2d55dd4").repr == "foo/bar/2d55dd4"
-
-
-def test_target_repr_property() -> None:
-    assert Target("foo", "bar", "baz").repr == "foo/bar/baz"
 
 
 def test_parse_cyclopts(mocker: pytest_mock.MockerFixture) -> None:

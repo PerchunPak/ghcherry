@@ -3,7 +3,8 @@ import typing as t
 
 import cyclopts
 
-from gh_cherry_pick.commit_parser import Commit, Target
+from gh_cherry_pick.commit_parser import Commit
+from gh_cherry_pick.target_info import Target
 
 app = cyclopts.App(name="gh-cherry-pick", version_flags=[], backend="trio")
 
@@ -22,7 +23,7 @@ async def main(
     target: t.Annotated[
         Target,
         cyclopts.Parameter(
-            help="Target to where apply cherry-picks; format Owner/RepoName/commit",
+            help="Target to where apply cherry-picks; format Owner/RepoName@branch",
             required=True,
             converter=Target.parse_cyclopts,
             n_tokens=1,
