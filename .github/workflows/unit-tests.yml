@@ -1,0 +1,34 @@
+---
+name: Unit-Tests
+
+on:
+  workflow_call:
+
+jobs:
+  unit-tests:
+    runs-on: ${{ matrix.platform }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [ubuntu-latest, windows-latest]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          activate-environment: true
+          enable-cache: true
+          cache-suffix: "unit-tests-ci"
+
+      - name: Install dependencies
+        run: |
+          uv sync --no-default-groups --group tests
+
+      - name: Run pytest
+        shell: bash
+        run: |
+          pytest

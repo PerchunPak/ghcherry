@@ -1,0 +1,56 @@
+---
+name: Validation
+
+on: workflow_call
+
+env:
+  PRE_COMMIT_HOME: "/home/runner/.cache/pre-commit"
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          activate-environment: true
+          enable-cache: true
+          cache-suffix: "validation-ci"
+
+      - name: Install dependencies
+        run: |
+          uv sync --no-default-groups --group validation --group types --group tests
+
+      - name: Get precommit version
+        id: precommit_version
+        run: |
+          PACKAGE_VERSION=$(uv pip show pre-commit | grep -i "version:" | awk '{print $2}')
+          echo "version=$PACKAGE_VERSION" >> $GITHUB_ENV
+
+      - name: Pre-commit Environment Caching
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.PRE_COMMIT_HOME }}
+          key:
+            "precommit-${{ runner.os }}-${{ env.PYTHON_VERSION }}-${{ steps.precommit_version.outputs.version }}-\
+            ${{ hashFiles('./.pre-commit-config.yaml') }}"
+          # Restore keys allows us to perform a cache restore even if the full cache key wasn't matched.
+          # That way we still end up saving new cache, but we can still make use of the cache from previous
+          # version.
+          restore-keys: "precommit-${{ runner.os }}-${{ steps.poetry_setup.outputs-python-version}}-"
+
+      - name: Run pre-commit hooks
+        run: SKIP=ruff-linter,ruff-formatter,basedpyright,pytest pre-commit run --all-files
+
+      - name: Run ruff linter
+        run: ruff check --output-format=github --show-fixes --exit-non-zero-on-fix .
+
+      - name: Run ruff formatter
+        run: ruff format --diff .
+
+      - name: Run basedpyright type checker
+        run: basedpyright --warnings .

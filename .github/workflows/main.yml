@@ -1,0 +1,18 @@
+---
+name: CI
+
+on:
+  push:
+  pull_request:
+
+# Cancel already running workflows if new ones are scheduled
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validation:
+    uses: ./.github/workflows/validation.yml
+
+  unit-tests:
+    uses: ./.github/workflows/unit-tests.yml
