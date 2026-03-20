@@ -182,9 +182,6 @@ dependencies = [
 ]
 
 [package.dev-dependencies]
-dev = [
-    { name = "pre-commit" },
-]
 tests = [
     { name = "pytest" },
     { name = "pytest-cov" },
@@ -193,6 +190,7 @@ tests = [
 ]
 validation = [
     { name = "basedpyright" },
+    { name = "pre-commit" },
     { name = "ruff" },
 ]
 
@@ -206,7 +204,7 @@ requires-dist = [
 ]
 
 [package.metadata.requires-dev]
-dev = [{ name = "pre-commit", specifier = "~=4.5.1" }]
+dev = []
 tests = [
     { name = "pytest", specifier = "~=9.0.2" },
     { name = "pytest-cov", specifier = "~=7.0.0" },
@@ -215,6 +213,7 @@ tests = [
 ]
 validation = [
     { name = "basedpyright", specifier = "~=1.38.3" },
+    { name = "pre-commit", specifier = "~=4.5.1" },
     { name = "ruff", specifier = "~=0.15.6" },
 ]
 
