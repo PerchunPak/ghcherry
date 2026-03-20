@@ -31,7 +31,7 @@ class CherryPicker:
             .json()
         )
 
-        commit_message = await self._prepare_commit_message(commit, commit_info)
+        commit_message = self._prepare_commit_message(commit, commit_info)
 
         # Here is the branch we want to cherry-pick to:
         branch_info = (
@@ -130,13 +130,12 @@ class CherryPicker:
         # Done!
         print(f"Successfully cherry-picked {commit.repr}!")
 
-    async def _prepare_commit_message(
+    def _prepare_commit_message(
         self, commit: Commit, commit_info: dict[str, t.Any]
     ) -> str:
         commit_message = commit_info["commit"]["message"]
         print(f"Message: {commit_message}")
 
-        commit_message = commit_message.replace("\n", "\\n")
         commit_message += f"\n\n(cherry-picked from commit {commit.sha})"
         commit_message += f"\n(from repository https://github.com/{commit.repo})"
 
