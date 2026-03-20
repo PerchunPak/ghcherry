@@ -12,6 +12,17 @@ from gh_cherry_pick.target_info import Target
 app = cyclopts.App(name="gh-cherry-pick", version_flags=[], backend="trio")
 
 
+@app.meta.default
+def callback(
+    *_: t.Annotated[
+        str, cyclopts.Parameter(show=False, allow_leading_hyphen=True)
+    ],
+) -> None:
+    setup_logging()
+
+    app()
+
+
 @app.default
 async def main(
     *commits: t.Annotated[
@@ -46,7 +57,6 @@ async def main(
         ),
     ] = None,
 ) -> None:
-    setup_logging()
     if not github_token:
         github_token = os.environ.get("GITHUB_TOKEN")
     if not github_token:
@@ -68,4 +78,4 @@ async def main(
 
 
 if __name__ == "__main__":
-    app()
+    app.meta()
