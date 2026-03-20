@@ -3,6 +3,8 @@ import typing as t
 
 import cyclopts
 
+from gh_cherry_pick.commit_parser import Commit
+
 app = cyclopts.App(name="gh-cherry-pick", version_flags=[], backend="trio")
 
 
@@ -30,6 +32,8 @@ async def main(
             "You need to specify GitHub token either using --token "
             + "parameter or $GITHUB_TOKEN environment variable"
         )
+
+    commits_parsed = [Commit.parse(commit) for commit in commits]
 
 
 if __name__ == "__main__":
