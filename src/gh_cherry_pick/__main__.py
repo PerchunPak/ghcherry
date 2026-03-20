@@ -3,11 +3,11 @@ import typing as t
 
 import cyclopts
 
-app = cyclopts.App(name="gh-cherry-pick", version_flags=[])
+app = cyclopts.App(name="gh-cherry-pick", version_flags=[], backend="trio")
 
 
 @app.default
-def main(
+async def main(
     *commits: t.Annotated[
         str,
         cyclopts.Parameter(help="Commits to cherry-pick", required=True),
