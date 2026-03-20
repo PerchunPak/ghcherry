@@ -184,6 +184,8 @@ dependencies = [
 [package.dev-dependencies]
 dev = [
     { name = "pre-commit" },
+]
+tests = [
     { name = "pytest" },
     { name = "pytest-cov" },
     { name = "pytest-mock" },
@@ -204,8 +206,8 @@ requires-dist = [
 ]
 
 [package.metadata.requires-dev]
-dev = [
-    { name = "pre-commit", specifier = "~=4.5.1" },
+dev = [{ name = "pre-commit", specifier = "~=4.5.1" }]
+tests = [
     { name = "pytest", specifier = "~=9.0.2" },
     { name = "pytest-cov", specifier = "~=7.0.0" },
     { name = "pytest-mock", specifier = "~=3.15.1" },

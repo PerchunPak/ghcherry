@@ -13,6 +13,9 @@ dependencies = [
 [dependency-groups]
 dev = [
   "pre-commit~=4.5.1",
+]
+
+tests = [
   "pytest~=9.0.2",
   "pytest-cov~=7.0.0",
   "pytest-mock~=3.15.1",
@@ -25,7 +28,7 @@ validation = [
 ]
 
 [tool.uv]
-default-groups = ["dev", "validation"]
+default-groups = ["dev", "tests", "validation"]
 
 [project.scripts]
 gh-cherry-pick = "gh_cherry_pick.__main__:app"
