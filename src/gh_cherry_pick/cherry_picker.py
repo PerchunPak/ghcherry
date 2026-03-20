@@ -52,7 +52,8 @@ class CherryPicker:
         if len(commit_info["parents"]) > 1:
             print(
                 f"WARNING: Commit {commit.repr} has more than one parent, the "
-                + "script may behave unnexpectably"
+                + "script may behave unnexpectably. Parents:"
+                + "\n- ".join(parent["sha"] for parent in commit_info["parents"])
             )
 
         temp_commit = (
