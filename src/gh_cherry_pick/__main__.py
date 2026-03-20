@@ -7,7 +7,7 @@ import httpx
 from gh_cherry_pick.cherry_picker import CherryPicker
 from gh_cherry_pick.commit_parser import Commit
 from gh_cherry_pick.logs import setup_logging
-from gh_cherry_pick.target_info import FetchedTarget, Target
+from gh_cherry_pick.target_info import Target
 
 app = cyclopts.App(name="gh-cherry-pick", version_flags=[], backend="trio")
 
@@ -60,8 +60,7 @@ async def main(
             "X-GitHub-Api-Version": "2026-03-10",
         }
     ) as session:
-        target_info = await FetchedTarget.fetch(session, target)
-        cherry_picker = CherryPicker(session, target_info)
+        cherry_picker = CherryPicker(session, target)
         for commit in commits:
             await cherry_picker.cherry_pick_commit(commit)
 
