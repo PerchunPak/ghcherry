@@ -11,8 +11,13 @@ app = cyclopts.App(name="gh-cherry-pick", version_flags=[], backend="trio")
 @app.default
 async def main(
     *commits: t.Annotated[
-        str,
-        cyclopts.Parameter(help="Commits to cherry-pick", required=True),
+        Commit,
+        cyclopts.Parameter(
+            help="Commits to cherry-pick; format: Owner/RepoName/commit",
+            required=True,
+            converter=Commit.parse_cyclopts,
+            n_tokens=1,
+        ),
     ],
     github_token: t.Annotated[
         str | None,
@@ -32,8 +37,6 @@ async def main(
             "You need to specify GitHub token either using --token "
             + "parameter or $GITHUB_TOKEN environment variable"
         )
-
-    commits_parsed = [Commit.parse(commit) for commit in commits]
 
 
 if __name__ == "__main__":

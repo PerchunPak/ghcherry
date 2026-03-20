@@ -4,6 +4,7 @@ import re
 import typing as t
 
 import attrs
+import cyclopts
 
 GITHUB_REPO_REGEX = re.compile(r"^[\w\d.\-_]+")
 SHA1_REGEX = re.compile(r"^\b[0-9a-f]{7,40}\b$")
@@ -28,6 +29,10 @@ class Commit:
     @property
     def repo(self) -> str:
         return f"{self.repo_owner}/{self.repo_name}"
+
+    @property
+    def repr(self) -> str:
+        return f"{self.repo}/{self.sha}"
 
     @classmethod
     def parse(cls, input: str) -> t.Self:
@@ -56,3 +61,7 @@ class Commit:
             repo_name=repo_name,
             sha=commit,
         )
+
+    @classmethod
+    def parse_cyclopts(cls, tokens: tuple[cyclopts.Token]) -> t.Self:
+        return cls.parse(tokens[0].value)
