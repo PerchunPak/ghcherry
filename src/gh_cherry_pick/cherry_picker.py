@@ -141,11 +141,3 @@ class CherryPicker:
         commit_message += f"\n(from repository https://github.com/{commit.repo})"
 
         return commit_message
-
-    async def _make_api_request(
-        self, method: str, url: str, **kwargs: t.Any
-    ) -> dict[str, t.Any]:
-        response = await getattr(self.client, method)(
-            "https://api.github.com/" + url, **kwargs
-        )
-        return response.json()
