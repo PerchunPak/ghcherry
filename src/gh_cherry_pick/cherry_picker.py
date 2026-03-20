@@ -13,6 +13,13 @@ class CherryPicker:
     target: Target
 
     async def cherry_pick_commit(self, commit: Commit) -> None:
+        """Cherry pick one commit.
+
+        This is built upon Jim's solution, which was written in pseudo-code
+        https://stackoverflow.com/a/58672227/22235705. The comments from their
+        solution are left in the same places, so it is easier to compare with
+        the spec.
+        """
         print(f"Cherry-picking {commit.repr} to {self.target.repr}...")
         commit_info = (
             (
