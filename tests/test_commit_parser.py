@@ -2,7 +2,7 @@ import cyclopts.utils
 import pytest
 import pytest_mock
 
-from gh_cherry_pick.commit_parser import Commit
+from gh_cherry_pick.commit_parser import Commit, Target
 
 
 @pytest.mark.parametrize(
@@ -49,7 +49,7 @@ def test_invalid_sha() -> None:
 def test_invalid_input(input: str) -> None:
     with pytest.raises(
         ValueError,
-        match=f"^Invalid commit reference provided: {input!r}\n"
+        match=f"^Invalid reference provided: {input!r}\n"
         + "Must be in format: Owner/RepoName/commit$",
     ):
         _ = Commit.parse(input)
@@ -59,8 +59,12 @@ def test_repo_property() -> None:
     assert Commit("foo", "bar", "2d55dd4").repo == "foo/bar"
 
 
-def test_repr_property() -> None:
+def test_commit_repr_property() -> None:
     assert Commit("foo", "bar", "2d55dd4").repr == "foo/bar/2d55dd4"
+
+
+def test_target_repr_property() -> None:
+    assert Target("foo", "bar", "baz").repr == "foo/bar/baz"
 
 
 def test_parse_cyclopts(mocker: pytest_mock.MockerFixture) -> None:

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import abc
 import re
 import typing as t
 
@@ -10,34 +11,19 @@ GITHUB_REPO_REGEX = re.compile(r"^[\w\d.\-_]+")
 SHA1_REGEX = re.compile(r"^\b[0-9a-f]{7,40}\b$")
 
 
-def rev_is_sha(
-    instance: Commit, _attribute: attrs.Attribute[str], value: str
-) -> None:
-    if not SHA1_REGEX.match(value):
-        raise ValueError(
-            f"You have provided an invalid commit SHA1: {value!r}\n"
-            + f"For repository {instance.repo}"
-        )
-
-
 @attrs.define(frozen=True)
-class Commit:
+class Reference(abc.ABC):
     repo_owner: str
     repo_name: str
-    sha: str = attrs.field(validator=rev_is_sha)
 
     @property
     def repo(self) -> str:
         return f"{self.repo_owner}/{self.repo_name}"
 
-    @property
-    def repr(self) -> str:
-        return f"{self.repo}/{self.sha}"
-
     @classmethod
     def parse(cls, input: str) -> t.Self:
         error = ValueError(
-            f"Invalid commit reference provided: {input!r}\n"
+            f"Invalid reference provided: {input!r}\n"
             + "Must be in format: Owner/RepoName/commit"
         )
 
@@ -51,17 +37,47 @@ class Commit:
             raise error
 
         repo_name = repo_name_match.group()
-        commit = other.removeprefix(repo_name)[1:]
+        trailing_item = other.removeprefix(repo_name)[1:]
 
-        if not commit:
+        if not trailing_item:
             raise error
 
         return cls(
-            repo_owner=repo_owner,
-            repo_name=repo_name,
-            sha=commit,
+            repo_owner,
+            repo_name,
+            trailing_item,  # pyright: ignore[reportCallIssue] # children have three fields
         )
 
     @classmethod
     def parse_cyclopts(cls, tokens: tuple[cyclopts.Token]) -> t.Self:
         return cls.parse(tokens[0].value)
+
+
+@attrs.define(frozen=True)
+class Target(Reference):
+    branch: str
+
+    @property
+    def repr(self) -> str:
+        return f"{self.repo}/{self.branch}"
+
+
+def rev_is_sha(
+    instance: Commit, _attribute: attrs.Attribute[str], value: str
+) -> None:
+    if not SHA1_REGEX.match(value):
+        raise ValueError(
+            f"You have provided an invalid commit SHA1: {value!r}\n"
+            + f"For repository {instance.repo}"
+        )
+
+
+@attrs.define(frozen=True)
+class Commit(Reference):
+    repo_owner: str
+    repo_name: str
+    sha: str = attrs.field(validator=rev_is_sha)
+
+    @property
+    def repr(self) -> str:
+        return f"{self.repo}/{self.sha}"
