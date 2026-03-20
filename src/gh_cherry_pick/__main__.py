@@ -2,9 +2,11 @@ import os
 import typing as t
 
 import cyclopts
+import httpx
 
+from gh_cherry_pick.cherry_picker import CherryPicker
 from gh_cherry_pick.commit_parser import Commit
-from gh_cherry_pick.target_info import Target
+from gh_cherry_pick.target_info import FetchedTarget, Target
 
 app = cyclopts.App(name="gh-cherry-pick", version_flags=[], backend="trio")
 
@@ -27,6 +29,7 @@ async def main(
             required=True,
             converter=Target.parse_cyclopts,
             n_tokens=1,
+            accepts_keys=False,
         ),
     ],
     github_token: t.Annotated[
@@ -47,6 +50,18 @@ async def main(
             "You need to specify GitHub token either using --token "
             + "parameter or $GITHUB_TOKEN environment variable"
         )
+
+    async with httpx.AsyncClient(
+        headers={
+            "Accept": "application/vnd.github+json",
+            "Authorization": f"Bearer {github_token}",
+            "X-GitHub-Api-Version": "2026-03-10",
+        }
+    ) as session:
+        target_info = await FetchedTarget.fetch(session, target)
+        cherry_picker = CherryPicker(session, target_info)
+        for commit in commits:
+            await cherry_picker.cherry_pick_commit(commit)
 
 
 if __name__ == "__main__":
