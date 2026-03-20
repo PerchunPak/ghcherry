@@ -13,6 +13,7 @@ dependencies = [
 [dependency-groups]
 dev = [
   "pytest~=9.0.2",
+  "pytest-cov~=7.0.0",
   "pytest-mock~=3.15.1",
   "pytest-trio~=0.8.0",
 ]
@@ -137,6 +138,16 @@ executionEnvironments = [
 
 [tool.pytest]
 trio_mode = true
+addopts = [
+  "--strict-markers",
+  "--strict-config",
+  "--tb=short",
+  "--cov=gh_cherry_pick",
+  "--cov-report=term",
+  "--cov-report=html",
+  "--cov-report=xml",
+  "--cov-branch",
+]
 
 [build-system]
 requires = ["uv_build>=0.10.9,<0.11.0"]
