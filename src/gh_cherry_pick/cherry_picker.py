@@ -16,10 +16,14 @@ class CherryPicker:
         target = self.target_info.meta
         print(f"Cherry-picking {commit.repr} to {target.repr}...")
         commit_info = (
-            await self.client.get(
-                f"https://api.github.com/repos/{commit.repo}/commits/{commit.sha}"
+            (
+                await self.client.get(
+                    f"https://api.github.com/repos/{commit.repo}/commits/{commit.sha}"
+                )
             )
-        ).json()
+            .raise_for_status()
+            .json()
+        )
 
         commit_message = await self._prepare_commit_message(commit, commit_info)
 
@@ -33,36 +37,46 @@ class CherryPicker:
             )
 
         temp_commit = (
-            await self.client.post(
-                f"https://api.github.com/repos/{target.repo}/git/commits",
-                json={
-                    "message": "temp",
-                    "tree": self.target_info.branch_tree,
-                    "parents": [parent_sha],
-                },
+            (
+                await self.client.post(
+                    f"https://api.github.com/repos/{target.repo}/git/commits",
+                    json={
+                        "message": "temp",
+                        "tree": self.target_info.branch_tree,
+                        "parents": [parent_sha],
+                    },
+                )
             )
-        ).json()
+            .raise_for_status()
+            .json()
+        )
 
         # Now temporarily force the branch over to that commit
-        _ = await self.client.patch(
-            f"https://api.github.com/repos/{target.repo}"
-            + f"/git/refs/heads/{target.branch}",
-            json={
-                "sha": temp_commit["sha"],
-                "force": True,
-            },
-        )
+        _ = (
+            await self.client.patch(
+                f"https://api.github.com/repos/{target.repo}"
+                + f"/git/refs/heads/{target.branch}",
+                json={
+                    "sha": temp_commit["sha"],
+                    "force": True,
+                },
+            )
+        ).raise_for_status()
 
         # Merge the commit we want into this mess:
         merge = (
-            await self.client.post(
-                f"https://api.github.com/repos/{target.repo}/merges",
-                json={
-                    "base": target.branch,
-                    "head": commit.sha,
-                },
+            (
+                await self.client.post(
+                    f"https://api.github.com/repos/{target.repo}/merges",
+                    json={
+                        "base": target.branch,
+                        "head": commit.sha,
+                    },
+                )
             )
-        ).json()
+            .raise_for_status()
+            .json()
+        )
 
         # and get that tree!
         merge_tree = merge["commit"]["tree"]["sha"]
@@ -70,22 +84,28 @@ class CherryPicker:
         # Now that we know what the tree should be, create the cherry-pick commit.
         # Note that branchSha is the original from up at the top.
         cherry = (
-            await self.client.post(
-                f"https://api.github.com/repos/{target.repo}/git/commits",
-                json={
-                    "message": commit_message,
-                    "tree": merge_tree,
-                    "parents": [self.target_info.branch_sha],
-                },
+            (
+                await self.client.post(
+                    f"https://api.github.com/repos/{target.repo}/git/commits",
+                    json={
+                        "message": commit_message,
+                        "tree": merge_tree,
+                        "parents": [self.target_info.branch_sha],
+                    },
+                )
             )
-        ).json()
+            .raise_for_status()
+            .json()
+        )
 
         # Replace the temp commit with the real commit:
-        _ = await self.client.patch(
-            f"https://api.github.com/repos/{target.repo}"
-            + f"/git/refs/heads/{target.branch}",
-            json={"sha": cherry["sha"], "force": True},
-        )
+        _ = (
+            await self.client.patch(
+                f"https://api.github.com/repos/{target.repo}"
+                + f"/git/refs/heads/{target.branch}",
+                json={"sha": cherry["sha"], "force": True},
+            )
+        ).raise_for_status()
 
         # Done!
         print(f"Successfully cherry-picked {commit.repr}!")
