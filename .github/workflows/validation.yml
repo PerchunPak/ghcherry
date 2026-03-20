@@ -23,7 +23,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          uv sync --no-default-groups --group validation --group types --group tests
+          uv sync --no-default-groups --group validation --group tests
 
       - name: Get precommit version
         id: precommit_version
