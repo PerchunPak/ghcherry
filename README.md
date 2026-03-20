@@ -10,7 +10,7 @@ entirely through the GitHub REST API:
 
 ## Installation
 
-Requires Python 3.14+, I recommend using [uv](https://docs.astral.sh/uv/), but
+Requires Python 3.10+, I recommend using [uv](https://docs.astral.sh/uv/), but
 it will work fine with pip or anything else.
 
 ```bash

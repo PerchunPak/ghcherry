@@ -1,12 +1,10 @@
 import typing as t
 
 import attrs
+import httpx
 
-if t.TYPE_CHECKING:
-    import httpx
-
-    from gh_cherry_pick.commit_parser import Commit
-    from gh_cherry_pick.target_info import Target
+from gh_cherry_pick.commit_parser import Commit
+from gh_cherry_pick.target_info import Target
 
 
 @attrs.frozen

@@ -5,6 +5,7 @@ import re
 import typing as t
 
 import attrs
+import typing_extensions as te
 
 if t.TYPE_CHECKING:
     import cyclopts
@@ -34,7 +35,7 @@ class Reference(abc.ABC):
         return f"{self.repo_owner}/{self.repo_name}"
 
     @classmethod
-    def parse(cls, input: str) -> t.Self:
+    def parse(cls, input: str) -> te.Self:
         split_other_by: str
         if cls.trailing_key == "commit":
             split_other_by = "/"
@@ -64,7 +65,7 @@ class Reference(abc.ABC):
         )
 
     @classmethod
-    def parse_cyclopts(cls, tokens: tuple[cyclopts.Token]) -> t.Self:
+    def parse_cyclopts(cls, tokens: tuple[cyclopts.Token]) -> te.Self:
         return cls.parse(tokens[0].value)
 
 

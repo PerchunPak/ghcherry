@@ -1,12 +1,8 @@
-from typing import TYPE_CHECKING
-
 import cyclopts.utils
 import pytest
+import pytest_mock
 
 from gh_cherry_pick.target_info import Target
-
-if TYPE_CHECKING:
-    import pytest_mock
 
 
 def test_target_info() -> None:

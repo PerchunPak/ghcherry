@@ -1,13 +1,14 @@
 [project]
 name = "gh-cherry-pick"
 version = "0.1.0"
-requires-python = ">=3.14"
+requires-python = ">=3.10"
 dependencies = [
   "attrs~=25.4.0",
   "cyclopts~=4.10.0",
   "httpx~=0.28.1",
   "loguru~=0.7.3",
   "trio~=0.33.0",
+  "typing-extensions~=4.15.0",
 ]
 
 [dependency-groups]
@@ -34,7 +35,7 @@ default-groups = ["dev", "tests", "validation"]
 gh-cherry-pick = "gh_cherry_pick.__main__:app"
 
 [tool.ruff]
-target-version = "py314"
+target-version = "py310"
 line-length = 83
 
 [tool.ruff.lint]
@@ -102,7 +103,7 @@ line-ending = "lf"
 
 [tool.basedpyright]
 pythonPlatform = "Linux"
-pythonVersion = "3.13"
+pythonVersion = "3.10"
 typeCheckingMode = "all"
 exclude = [
   ".venv",
