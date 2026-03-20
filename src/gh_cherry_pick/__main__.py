@@ -6,6 +6,7 @@ import httpx
 
 from gh_cherry_pick.cherry_picker import CherryPicker
 from gh_cherry_pick.commit_parser import Commit
+from gh_cherry_pick.logs import setup_logging
 from gh_cherry_pick.target_info import FetchedTarget, Target
 
 app = cyclopts.App(name="gh-cherry-pick", version_flags=[], backend="trio")
@@ -43,6 +44,7 @@ async def main(
         ),
     ] = None,
 ) -> None:
+    setup_logging()
     if not github_token:
         github_token = os.environ.get("GITHUB_TOKEN")
     if not github_token:
