@@ -21,6 +21,16 @@ repos:
 
   - repo: local
     hooks:
+      - id: uv-lockfile
+        name: UV Lockfile
+        description: Check if the UV lockfile is up to date with pyproject.toml
+        entry: uv lock --check
+        language: system
+        files: '^pyproject\.toml$|^uv\.lock$'
+        pass_filenames: false
+
+  - repo: local
+    hooks:
       - id: ruff
         name: Ruff Linter
         description: Run ruff checks on the code
@@ -48,16 +58,6 @@ repos:
         entry: basedpyright
         language: system
         types: [python]
-        pass_filenames: false
-
-  - repo: local
-    hooks:
-      - id: uv-lockfile
-        name: UV Lockfile
-        description: Check if the UV lockfile is up to date with pyproject.toml
-        entry: uv lock --check
-        language: system
-        files: '^pyproject\.toml$|^uv\.lock$'
         pass_filenames: false
 
   - repo: local
