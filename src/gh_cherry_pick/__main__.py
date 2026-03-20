@@ -26,7 +26,9 @@ async def main(
     target: t.Annotated[
         Target,
         cyclopts.Parameter(
-            help="Target to where apply cherry-picks; format Owner/RepoName@branch",
+            help=(
+                "Target to where apply cherry-picks; format Owner/RepoName@branch"
+            ),
             required=True,
             converter=Target.parse_cyclopts,
             n_tokens=1,

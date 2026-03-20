@@ -51,6 +51,7 @@ ignore = [
   "RET504",  # Unnecessary assignment to a variable before `return` statement
   "S101",    # Use of `assert` detected
   "S311",    # Standard pseudo-random generators are not suitable for cryptographic purposes
+  "T201",    # Usage of `print`
   "TD002",   # Missing author in TODO
   "TD003",   # Missing issue link for this TODO
   "TRY003",  # Avoid specifying long messages outside the exception class
@@ -71,7 +72,6 @@ ignore = [
   "ANN",    # flake8-annotations
   "FBT001", # Boolean-typed positional argument in function definition
   "SLF001", # Private member accessed
-  "T201",   # Usage of `print`
 ]
 
 [tool.ruff.lint.isort]

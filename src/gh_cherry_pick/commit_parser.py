@@ -5,7 +5,9 @@ import re
 import typing as t
 
 import attrs
-import cyclopts
+
+if t.TYPE_CHECKING:
+    import cyclopts
 
 SHA1_REGEX = re.compile(r"^\b[0-9a-f]{7,40}\b$")
 
