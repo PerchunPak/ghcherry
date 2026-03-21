@@ -1,0 +1,126 @@
+---
+name: Publish to PyPI
+
+on:
+  push:
+    tags:
+      # This pattern is not a typical regular expression, see:
+      # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#filter-pattern-cheat-sheet
+      - "v*"
+    branches:
+      # Also run on every commit to main. This allows us to test the build & release pipeline and eventually leads to a
+      # Test PyPI release. Unlike with a tag push, this will not release a full PyPI release, nor create a GitHub release.
+      - main
+
+permissions:
+  contents: read
+
+env:
+  PYTHON_VERSION: "3.14"
+
+jobs:
+  build:
+    name: "Build the project"
+    runs-on: ubuntu-latest
+
+    outputs:
+      version: ${{ steps.check-version.outputs.version }}
+      tagged_release: ${{ steps.check-version.outputs.tagged_release }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          # Do a full clone for uv-dynamic-versioning to pick up the git version
+          fetch-depth: 0
+
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          version: "latest"
+          python-version: ${{ env.PYTHON_VERSION }}
+          activate-environment: true
+          enable-cache: true
+          cache-suffix: "build"
+
+      - name: Install dependencies
+        run: |
+          uv sync --no-default-groups --group release
+
+      - name: Check version status
+        id: check-version
+        run: |
+          version="$(hatchling version)"
+
+          echo "Project version: $version"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+          # Determine whether we're doing a tagged release e.g. this workflow
+          # was triggered by a git tag ref that matches the project's current
+          # version, so a full PyPI release should be made, alongside all of
+          # the other release steps. If this isn't the case, only a Test PyPI
+          # release will be performed.
+          if [[ "${GITHUB_REF}" == "refs/tags/v${version}" ]]; then
+            echo "This is a new tagged release"
+            echo "tagged_release=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "This is an untagged dev release"
+            echo "tagged_release=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build project for distribution
+        run: uv build --all-packages
+
+      - name: Upload build files
+        uses: actions/upload-artifact@v7
+        with:
+          name: "dist"
+          path: "dist/"
+          if-no-files-found: error
+          retention-days: 5
+
+  publish-test-pypi:
+    name: "Publish to Test PyPI"
+    # No if condition here, publish both tagged and untagged releases to Test PyPI.
+    needs: build
+    runs-on: ubuntu-latest
+    environment: test-pypi
+    permissions:
+      # Used to authenticate to Test PyPI via OIDC.
+      id-token: write
+
+    steps:
+      - name: Download the distribution files from build artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: "dist"
+          path: "dist/"
+
+      - name: Upload to Test PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          # the "legacy" in the URL doesn't mean it's deprecated
+          repository-url: https://test.pypi.org/legacy/
+          # Enable verbose mode for easy debugging
+          verbose: true
+
+  publish-pypi:
+    name: "Publish to PyPI"
+    if: needs.build.outputs.tagged_release == 'true' # only publish to PyPI on tagged releases
+    needs: build
+    runs-on: ubuntu-latest
+    environment: release
+    permissions:
+      # Used to authenticate to PyPI via OIDC.
+      id-token: write
+
+    steps:
+      - name: Download the distribution files from build artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: "dist"
+          path: "dist/"
+
+      # This uses PyPI's trusted publishing, so no token is required
+      - name: Release to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
