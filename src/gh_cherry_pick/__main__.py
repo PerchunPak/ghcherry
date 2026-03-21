@@ -46,6 +46,19 @@ async def main(
             accepts_keys=False,
         ),
     ],
+    first_hard_reset_to: t.Annotated[
+        Commit | None,
+        cyclopts.Parameter(
+            help=(
+                "Before cherry-picking, hard reset target to this commit"
+                + "; format Owner/RepoName/commit"
+            ),
+            required=False,
+            converter=Commit.parse_cyclopts,
+            n_tokens=1,
+            accepts_keys=False,
+        ),
+    ] = None,
     github_token: t.Annotated[
         str | None,
         cyclopts.Parameter(
@@ -73,6 +86,8 @@ async def main(
         }
     ) as session:
         cherry_picker = CherryPicker(session, target)
+        if first_hard_reset_to:
+            await cherry_picker.hard_reset_target_to(first_hard_reset_to)
         for commit in commits:
             await cherry_picker.cherry_pick_commit(commit)
 

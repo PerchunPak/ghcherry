@@ -140,3 +140,15 @@ class CherryPicker:
         commit_message += f"\n(from repository https://github.com/{commit.repo})"
 
         return commit_message
+
+    async def hard_reset_target_to(self, commit: Commit) -> None:
+        _ = (
+            await self.client.patch(
+                f"https://api.github.com/repos/{self.target.repo}"
+                + f"/git/refs/heads/{self.target.branch}",
+                json={
+                    "sha": commit.sha,
+                    "force": True,
+                },
+            )
+        ).raise_for_status()
