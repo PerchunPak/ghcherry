@@ -3,7 +3,7 @@ name = "gh-cherry-pick"
 version = "0.1.0"
 requires-python = ">=3.10"
 dependencies = [
-  "attrs~=25.4.0",
+  "attrs~=26.1.0",
   "cyclopts~=4.10.0",
   "httpx~=0.28.1",
   "loguru~=0.7.3",
