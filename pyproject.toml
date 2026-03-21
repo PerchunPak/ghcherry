@@ -1,6 +1,6 @@
 [project]
 name = "gh-cherry-pick"
-version = "0.1.0"
+dynamic = ["version"]
 requires-python = ">=3.10"
 dependencies = [
   "attrs~=26.1.0",
@@ -26,6 +26,11 @@ validation = [
   "basedpyright~=1.38.3",
   "pre-commit~=4.5.1",
   "ruff~=0.15.6",
+]
+
+release = [
+  "hatchling~=1.29.0",
+  "uv-dynamic-versioning~=0.13.0"
 ]
 
 [tool.uv]
@@ -155,5 +160,12 @@ addopts = [
 ]
 
 [build-system]
-requires = ["uv_build>=0.10.9,<0.11.0"]
-build-backend = "uv_build"
+requires = ["hatchling", "uv-dynamic-versioning"]
+build-backend = "hatchling.build"
+
+[tool.hatch.version]
+source = "uv-dynamic-versioning"
+
+[tool.uv-dynamic-versioning]
+metadata = false
+fallback-version = "0.0.0"
