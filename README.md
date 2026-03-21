@@ -41,9 +41,9 @@ gh-cherry-pick --target OWNER/REPO@BRANCH COMMITS...
 
 ```bash
 GITHUB_TOKEN=ghp_... gh-cherry-pick \
+  --target MyOrg/nixpkgs@patched \
   NixOS/nixpkgs/3f5ba52cc4701bf341457dfe5f6cb58e0cbb7f83 \
-  NixOS/nixpkgs/49ba75edefc8dc4fee45482f77a280ddd7121797 \
-  --target MyOrg/nixpkgs@patched
+  NixOS/nixpkgs/49ba75edefc8dc4fee45482f77a280ddd7121797
 ```
 
 Multiple commits are applied in order, each building on the previous result.
