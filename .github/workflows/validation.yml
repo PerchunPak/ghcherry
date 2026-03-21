@@ -12,10 +12,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup uv
-        uses: astral-sh/setup-uv@v6
+        uses: astral-sh/setup-uv@v7
         with:
           python-version: '3.10'
           activate-environment: true
@@ -33,7 +33,7 @@ jobs:
           echo "version=$PACKAGE_VERSION" >> $GITHUB_ENV
 
       - name: Pre-commit Environment Caching
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ${{ env.PRE_COMMIT_HOME }}
           key:
