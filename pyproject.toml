@@ -35,7 +35,7 @@ dependencies = [
 ]
 
 [project.urls]
-GitHub = "https://github.com/PerchunPak/gh-cherry-pick"
+Homepage = "https://github.com/PerchunPak/gh-cherry-pick"
 
 [dependency-groups]
 dev = [
