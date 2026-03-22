@@ -17,11 +17,11 @@
   ],
 
   "labels": ["a: dependencies"],
+  "minimumReleaseAge": "7 days",
   "packageRules": [
     {
       "groupName": "GitHub Actions",
       "matchManagers": ["github-actions"],
-      "addLabels": ["a: devops"],
     },
     {
       "groupName": "Python Dependencies",
