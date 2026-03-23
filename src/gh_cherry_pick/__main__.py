@@ -5,9 +5,8 @@ import cyclopts
 import httpx
 
 from gh_cherry_pick.cherry_picker import CherryPicker
-from gh_cherry_pick.commit_parser import Commit
 from gh_cherry_pick.logs import setup_logging
-from gh_cherry_pick.target_info import Target
+from gh_cherry_pick.reference import Reference
 
 app = cyclopts.App(name="gh-cherry-pick", version_flags=[], backend="trio")
 
@@ -25,36 +24,31 @@ def callback(
 
 @app.default
 async def main(
-    *commits: t.Annotated[
-        Commit,
+    *refs: t.Annotated[
+        Reference,
         cyclopts.Parameter(
-            help="Commits to cherry-pick; format: Owner/RepoName/commit",
+            help="Commits to cherry-pick",
             required=True,
-            converter=Commit.parse_cyclopts,
+            converter=Reference.parse_cyclopts,
             n_tokens=1,
         ),
     ],
     target: t.Annotated[
-        Target,
+        Reference,
         cyclopts.Parameter(
-            help=(
-                "Target to where apply cherry-picks; format Owner/RepoName@branch"
-            ),
+            help="Target branch to where apply cherry-picks",
             required=True,
-            converter=Target.parse_cyclopts,
+            converter=Reference.parse_cyclopts,
             n_tokens=1,
             accepts_keys=False,
         ),
     ],
     first_hard_reset_to: t.Annotated[
-        Commit | None,
+        Reference | None,
         cyclopts.Parameter(
-            help=(
-                "Before cherry-picking, hard reset target to this commit"
-                + "; format Owner/RepoName/commit"
-            ),
+            help="Before cherry-picking, hard reset target to this commit",
             required=False,
-            converter=Commit.parse_cyclopts,
+            converter=Reference.parse_cyclopts,
             n_tokens=1,
             accepts_keys=False,
         ),
@@ -70,6 +64,11 @@ async def main(
         ),
     ] = None,
 ) -> None:
+    """Cherry-pick commits across GitHub repositories using only the GitHub API.
+
+    Branches are specified in format `Owner/RepoName@branch` and commits in
+    `Owner/RepoName/commit`.
+    """
     if not github_token:
         github_token = os.environ.get("GITHUB_TOKEN")
     if not github_token:
@@ -77,6 +76,9 @@ async def main(
             "You need to specify GitHub token either using --token "
             + "parameter or $GITHUB_TOKEN environment variable"
         )
+    target.assert_is("branch", meta="target")
+    if first_hard_reset_to is not None:
+        first_hard_reset_to.assert_is("commit", meta="--first-hard-reset-to")
 
     async with httpx.AsyncClient(
         headers={
@@ -88,8 +90,8 @@ async def main(
         cherry_picker = CherryPicker(session, target)
         if first_hard_reset_to:
             await cherry_picker.hard_reset_target_to(first_hard_reset_to)
-        for commit in commits:
-            await cherry_picker.cherry_pick_commit(commit)
+        for ref in refs:
+            await cherry_picker.cherry_pick_commit(ref)
 
 
 if __name__ == "__main__":

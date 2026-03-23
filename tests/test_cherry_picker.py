@@ -6,8 +6,7 @@
 import typing as t
 
 from gh_cherry_pick.cherry_picker import CherryPicker
-from gh_cherry_pick.commit_parser import Commit
-from gh_cherry_pick.target_info import Target
+from gh_cherry_pick.reference import Reference
 
 
 def test_prepare_commit_message() -> None:
@@ -34,8 +33,8 @@ def test_prepare_commit_message() -> None:
             }
         ],
     }
-    commit = Commit("PerchunPak", "nixpkgs", sha)
-    target = Target("PerchunPak", "nixpkgs", "patched")
+    commit = Reference("PerchunPak", "nixpkgs", ref=sha, ref_type="commit")
+    target = Reference("PerchunPak", "nixpkgs", ref="patched", ref_type="branch")
     cherry_picker = CherryPicker(client=None, target=target)  # pyright: ignore[reportArgumentType]
 
     # ruff: disable[E501]

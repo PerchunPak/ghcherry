@@ -3,16 +3,15 @@ import typing as t
 import attrs
 import httpx
 
-from gh_cherry_pick.commit_parser import Commit
-from gh_cherry_pick.target_info import Target
+from gh_cherry_pick.reference import Reference
 
 
 @attrs.frozen
 class CherryPicker:
     client: httpx.AsyncClient
-    target: Target
+    target: Reference
 
-    async def cherry_pick_commit(self, commit: Commit) -> None:
+    async def cherry_pick_commit(self, commit: Reference) -> None:
         """Cherry pick one commit.
 
         This is built upon Jim's solution, which was written in pseudo-code
@@ -24,7 +23,7 @@ class CherryPicker:
         commit_info = (
             (
                 await self.client.get(
-                    f"https://api.github.com/repos/{commit.repo}/commits/{commit.sha}"
+                    f"https://api.github.com/repos/{commit.repo}/commits/{commit.ref}"
                 )
             )
             .raise_for_status()
@@ -37,7 +36,7 @@ class CherryPicker:
         branch_info = (
             (
                 await self.client.get(
-                    f"https://api.github.com/repos/{self.target.repo}/branches/{self.target.branch}"
+                    f"https://api.github.com/repos/{self.target.repo}/branches/{self.target.ref}"
                 )
             )
             .raise_for_status()
@@ -75,7 +74,7 @@ class CherryPicker:
         _ = (
             await self.client.patch(
                 f"https://api.github.com/repos/{self.target.repo}"
-                + f"/git/refs/heads/{self.target.branch}",
+                + f"/git/refs/heads/{self.target.ref}",
                 json={
                     "sha": temp_commit["sha"],
                     "force": True,
@@ -89,8 +88,8 @@ class CherryPicker:
                 await self.client.post(
                     f"https://api.github.com/repos/{self.target.repo}/merges",
                     json={
-                        "base": self.target.branch,
-                        "head": commit.sha,
+                        "base": self.target.ref,
+                        "head": commit.ref,
                     },
                 )
             )
@@ -122,7 +121,7 @@ class CherryPicker:
         _ = (
             await self.client.patch(
                 f"https://api.github.com/repos/{self.target.repo}"
-                + f"/git/refs/heads/{self.target.branch}",
+                + f"/git/refs/heads/{self.target.ref}",
                 json={"sha": cherry["sha"], "force": True},
             )
         ).raise_for_status()
@@ -131,24 +130,24 @@ class CherryPicker:
         print(f"Successfully cherry-picked {commit.repr}!")
 
     def _prepare_commit_message(
-        self, commit: Commit, commit_info: dict[str, t.Any]
+        self, commit: Reference, commit_info: dict[str, t.Any]
     ) -> str:
         commit_message = commit_info["commit"]["message"]
         print(f"Message: {commit_message}")
 
-        commit_message += f"\n\n(cherry-picked from commit {commit.sha})"
+        commit_message += f"\n\n(cherry-picked from commit {commit.ref})"
         commit_message += f"\n(from repository https://github.com/{commit.repo})"
 
         return commit_message
 
-    async def hard_reset_target_to(self, commit: Commit) -> None:
+    async def hard_reset_target_to(self, commit: Reference) -> None:
         print(f"Hard resetting {self.target.repr} to {commit.repr}...")
         _ = (
             await self.client.patch(
                 f"https://api.github.com/repos/{self.target.repo}"
-                + f"/git/refs/heads/{self.target.branch}",
+                + f"/git/refs/heads/{self.target.ref}",
                 json={
-                    "sha": commit.sha,
+                    "sha": commit.ref,
                     "force": True,
                 },
             )
