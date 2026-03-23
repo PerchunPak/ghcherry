@@ -63,7 +63,7 @@ release = [
 default-groups = ["dev", "tests", "validation"]
 
 [project.scripts]
-gh-cherry-pick = "gh_cherry_pick.__main__:app"
+gh-cherry-pick = "gh_cherry_pick.__main__:app.meta"
 
 [tool.ruff]
 target-version = "py310"
