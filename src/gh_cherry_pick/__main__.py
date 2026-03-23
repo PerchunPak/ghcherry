@@ -46,7 +46,7 @@ async def main(
     first_hard_reset_to: t.Annotated[
         Reference | None,
         cyclopts.Parameter(
-            help="Before cherry-picking, hard reset target to this commit",
+            help="Hard reset target to this commit, before doing anything else.",
             required=False,
             converter=Reference.parse_cyclopts,
             n_tokens=1,
@@ -58,7 +58,7 @@ async def main(
         cyclopts.Parameter(
             name=["-t", "--token"],
             help=(
-                "GitHub token, if not specified, fallbacks to the "
+                "GitHub token. If not specified, fallbacks to the "
                 + "$GITHUB_TOKEN environment variable"
             ),
         ),
@@ -66,12 +66,12 @@ async def main(
 ) -> None:
     """Cherry-pick commits across GitHub repositories using only the GitHub API.
 
-    Branches are specified in format `Owner/RepoName@branch` and commits in
-    `Owner/RepoName/commit`.
+    Format for branches is `Owner/Repo@branch` and for commits is
+    `Owner/Repo/commit`.
 
-    You can specify branches instead of commits, and the script will merge them
-    instead of cherry-picking. This is helpful if you want to maintain forked
-    repository, but don't want to constantly update hashes.
+    You can give commits and/or branches as positional arguments. Commits will
+    be cherry-picked, while branches will be merged into target. Each
+    commit/branch is applied in order and builds on previous result.
     """
     if not github_token:
         github_token = os.environ.get("GITHUB_TOKEN")

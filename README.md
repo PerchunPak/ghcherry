@@ -25,28 +25,29 @@ uvx gh-cherry-pick --help
 
 ## Usage
 
-```
-gh-cherry-pick --target OWNER/REPO@BRANCH COMMITS...
-```
-
-**Arguments:**
-
-| Argument | Format | Description |
-|---|---|---|
-| `--target` | `Owner/RepoName@branch` | Target repository and branch to apply the cherry-picks to |
-| `COMMITS` | `Owner/RepoName/sha` | One or more commits to cherry-pick (short or full SHA) |
-| `--token`, `-t` | string | GitHub token (falls back to `$GITHUB_TOKEN`) |
-
-**Example:**
-
 ```bash
 GITHUB_TOKEN=ghp_... gh-cherry-pick \
   --target MyOrg/nixpkgs@patched \
   NixOS/nixpkgs/3f5ba52cc4701bf341457dfe5f6cb58e0cbb7f83 \
-  NixOS/nixpkgs/49ba75edefc8dc4fee45482f77a280ddd7121797
+  NixOS/nixpkgs/49ba75edefc8dc4fee45482f77a280ddd7121797 \
+  Someone/nixpkgs@pr-branch
 ```
 
-Multiple commits are applied in order, each building on the previous result.
+### Arguments
+
+You can give commits and/or branches as positional arguments. Commits will be
+cherry-picked, while branches will be merged into target. Each commit/branch is
+applied in order and builds on previous result.
+
+### Parameters
+
+Format for branches is `Owner/Repo@branch` and for commits is `Owner/Repo/commit`.
+
+- `--target`: Required. Target branch to where apply cherry-picks.
+- `--first-hard-reset-to`: Hard reset target to this commit, before doing
+  anything else.
+- `--token`/`-t`: GitHub token. If not specified, fallbacks to the
+  `$GITHUB_TOKEN` environment variable.
 
 ## Development
 
