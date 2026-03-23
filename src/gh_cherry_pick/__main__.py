@@ -27,7 +27,7 @@ async def main(
     *refs: t.Annotated[
         Reference,
         cyclopts.Parameter(
-            help="Commits to cherry-pick",
+            help="Commits to cherry-pick or branches to merge",
             required=True,
             converter=Reference.parse_cyclopts,
             n_tokens=1,
@@ -68,6 +68,10 @@ async def main(
 
     Branches are specified in format `Owner/RepoName@branch` and commits in
     `Owner/RepoName/commit`.
+
+    You can specify branches instead of commits, and the script will merge them
+    instead of cherry-picking. This is helpful if you want to maintain forked
+    repository, but don't want to constantly update hashes.
     """
     if not github_token:
         github_token = os.environ.get("GITHUB_TOKEN")
@@ -91,7 +95,10 @@ async def main(
         if first_hard_reset_to:
             await cherry_picker.hard_reset_target_to(first_hard_reset_to)
         for ref in refs:
-            await cherry_picker.cherry_pick_commit(ref)
+            if ref.ref_type == "commit":
+                await cherry_picker.cherry_pick_commit(ref)
+            else:
+                await cherry_picker.merge_branch(ref)
 
 
 if __name__ == "__main__":

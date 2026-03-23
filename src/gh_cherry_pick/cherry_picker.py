@@ -152,3 +152,15 @@ class CherryPicker:
                 },
             )
         ).raise_for_status()
+
+    async def merge_branch(self, branch: Reference) -> None:
+        print(f"Merging {branch.repr} into {self.target.repr}...")
+        _ = (
+            await self.client.post(
+                f"https://api.github.com/repos/{self.target.repo}/merges",
+                json={
+                    "base": self.target.ref,
+                    "head": branch.ref,
+                },
+            )
+        ).raise_for_status()
