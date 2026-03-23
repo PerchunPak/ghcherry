@@ -2,7 +2,7 @@
 name = "gh-cherry-pick"
 dynamic = ["version"]
 license = "MIT"
-description = "Cherry-pick commits across GitHub repositories using only the GitHub API - no local clone required"
+description = "Cherry-pick commits across GitHub repositories using only the GitHub API"
 readme = "README.md"
 authors = [
   { name = "PerchunPak", email = "hi@perchun.it" },

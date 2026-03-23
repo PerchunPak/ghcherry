@@ -1,6 +1,6 @@
 # GitHub cherry-pick
 
-Cherry-pick commits across GitHub repositories using only the GitHub API - no local clone required.
+Cherry-pick commits across GitHub repositories using only the GitHub API.
 
 ## How it works
 
