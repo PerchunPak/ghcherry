@@ -2,11 +2,16 @@
 
 Cherry-pick commits across GitHub repositories using only the GitHub API.
 
-## How it works
-
 Uses the algorithm described by [Jim's Stack Overflow
 answer](https://stackoverflow.com/a/58672227/22235705) to perform a cherry-pick
-entirely through the GitHub REST API:
+entirely through the GitHub REST API. This is much better than doing that
+through patches (e.g. [`patch2pr`](https://github.com/bluekeyes/patch2pr)),
+because git is much smarter with resolving conflicts on commits instead of
+patches.
+
+When I used patch2pr, I had to constantly rebase my patches, because on almost
+every update they would raise conflicts. Cherry-picking those commits works
+perfectly fine!
 
 ## Installation
 
