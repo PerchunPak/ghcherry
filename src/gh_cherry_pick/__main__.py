@@ -36,7 +36,7 @@ async def main(
     target: t.Annotated[
         Reference,
         cyclopts.Parameter(
-            help="Target branch to where apply cherry-picks",
+            help="Target branch to which to apply cherry-picks",
             required=True,
             converter=Reference.parse_cyclopts,
             n_tokens=1,
@@ -46,7 +46,7 @@ async def main(
     first_hard_reset_to: t.Annotated[
         Reference | None,
         cyclopts.Parameter(
-            help="Hard reset target to this commit, before doing anything else.",
+            help="Hard reset target to this commit, before doing anything else",
             required=False,
             converter=Reference.parse_cyclopts,
             n_tokens=1,
@@ -58,7 +58,7 @@ async def main(
         cyclopts.Parameter(
             name=["-t", "--token"],
             help=(
-                "GitHub token. If not specified, fallbacks to the "
+                "GitHub token. If not specified, falls back to the "
                 + "$GITHUB_TOKEN environment variable"
             ),
         ),
@@ -70,8 +70,8 @@ async def main(
     `Owner/Repo/commit`.
 
     You can give commits and/or branches as positional arguments. Commits will
-    be cherry-picked, while branches will be merged into target. Each
-    commit/branch is applied in order and builds on previous result.
+    be cherry-picked, while branches will be merged into the target. Each
+    commit/branch is applied in order and builds on the previous result.
     """
     if not github_token:
         github_token = os.environ.get("GITHUB_TOKEN")

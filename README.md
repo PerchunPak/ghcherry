@@ -36,17 +36,16 @@ GITHUB_TOKEN=ghp_... gh-cherry-pick \
 ### Arguments
 
 You can give commits and/or branches as positional arguments. Commits will be
-cherry-picked, while branches will be merged into target. Each commit/branch is
-applied in order and builds on previous result.
+cherry-picked, while branches will be merged into the target. Each
+commit/branch is applied in order and builds on the previous result.
 
-### Parameters
+Format for branches is `Owner/Repo@branch` and for commits is
+`Owner/Repo/commit`.
 
-Format for branches is `Owner/Repo@branch` and for commits is `Owner/Repo/commit`.
-
-- `--target`: Required. Target branch to where apply cherry-picks.
+- `--target`: Required. Target branch to which to apply cherry-picks.
 - `--first-hard-reset-to`: Hard reset target to this commit, before doing
   anything else.
-- `--token`/`-t`: GitHub token. If not specified, fallbacks to the
+- `--token`/`-t`: GitHub token. If not specified, falls back to the
   `$GITHUB_TOKEN` environment variable.
 
 ## Development
