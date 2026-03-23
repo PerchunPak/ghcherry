@@ -14,13 +14,13 @@ app = cyclopts.App(name="gh-cherry-pick", version_flags=[], backend="trio")
 
 @app.meta.default
 def callback(
-    *_: t.Annotated[
+    *tokens: t.Annotated[
         str, cyclopts.Parameter(show=False, allow_leading_hyphen=True)
     ],
 ) -> None:
     setup_logging()
 
-    app()
+    app(tokens)
 
 
 @app.default
