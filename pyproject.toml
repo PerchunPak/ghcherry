@@ -56,7 +56,7 @@ validation = [
 
 release = [
   "hatchling~=1.29.0",
-  "uv-dynamic-versioning~=0.13.0"
+  "uv-dynamic-versioning~=0.14.0"
 ]
 
 [tool.uv]
