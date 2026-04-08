@@ -33,8 +33,10 @@ uvx gh-cherry-pick --help
 ```bash
 GITHUB_TOKEN=ghp_... gh-cherry-pick \
   --target MyOrg/nixpkgs@patched \
+  `: # cherry-pick these commits` \
   NixOS/nixpkgs/3f5ba52cc4701bf341457dfe5f6cb58e0cbb7f83 \
   NixOS/nixpkgs/49ba75edefc8dc4fee45482f77a280ddd7121797 \
+  `: # or merge the entire branch!` \
   Someone/nixpkgs@pr-branch
 ```
 
