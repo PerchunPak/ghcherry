@@ -32,7 +32,7 @@ uvx gh-cherry-pick --help
 
 This tool requires a classic token with `repo` and `workflow` permissions
 (`workflow` is needed only if commits update `.github/workflows` files) or
-fine-grained token with `contents` and `workflows` permissions.
+a fine-grained token with `contents` and `workflows` permissions.
 
 ```bash
 GITHUB_TOKEN=ghp_... gh-cherry-pick \
