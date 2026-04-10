@@ -8,7 +8,7 @@ from gh_cherry_pick.cherry_picker import CherryPicker
 from gh_cherry_pick.logs import setup_logging
 from gh_cherry_pick.reference import Reference
 
-app = cyclopts.App(name="gh-cherry-pick", version_flags=[])
+app = cyclopts.App(name="gh-cherry-pick")
 
 
 @app.meta.default
