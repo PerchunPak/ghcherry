@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import abc
 import dataclasses
 import re
 import typing as t
@@ -14,7 +13,7 @@ GITHUB_REPO_REGEX = re.compile(r"^[\w\d.\-_]+")
 
 
 @dataclasses.dataclass(frozen=True)
-class Reference(abc.ABC):
+class Reference:
     repo_owner: str
     repo_name: str
 
