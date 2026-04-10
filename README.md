@@ -44,6 +44,11 @@ GITHUB_TOKEN=ghp_... gh-cherry-pick \
   Someone/nixpkgs@pr-branch
 ```
 
+You can also pass links like
+`https://github.com/NixOS/nixpkgs/commit/4e92bbcdb030f3b4782be4751dc08e6b6cb6ccf2`
+or `https://github.com/MyOrg/nixpkgs/tree/patched` instead of
+`MyOrg/nixpkgs@patched`.
+
 ### Arguments
 
 You can give commits and/or branches as positional arguments. Commits will be

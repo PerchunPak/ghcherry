@@ -66,12 +66,17 @@ async def main(
 ) -> None:
     """Cherry-pick commits across GitHub repositories using only the GitHub API.
 
-    Format for branches is `Owner/Repo@branch` and for commits is
-    `Owner/Repo/commit`.
+    Supported formats for branches:
+    - Owner/RepoName@branch
+    - https://github.com/Owner/RepoName/tree/branch
+
+    And for commits:
+    - Owner/RepoName/commit
+    - https://github.com/Owner/RepoName/commit/09588bb
 
     You can give commits and/or branches as positional arguments. Commits will
     be cherry-picked, while branches will be merged into the target. Each
-    commit/branch is applied in order and builds on the previous result.
+    commit/branch is applied in order and builds upon the previous result.
     """
     if not github_token:
         github_token = os.environ.get("GITHUB_TOKEN")
