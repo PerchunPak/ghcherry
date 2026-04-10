@@ -44,10 +44,9 @@ GITHUB_TOKEN=ghp_... gh-cherry-pick \
   Someone/nixpkgs@pr-branch
 ```
 
-You can also pass links like
-`https://github.com/NixOS/nixpkgs/commit/4e92bbcdb030f3b4782be4751dc08e6b6cb6ccf2`
+You can also pass links like `https://github.com/NixOS/nixpkgs/commit/4e92bbc`
 or `https://github.com/MyOrg/nixpkgs/tree/patched` instead of
-`MyOrg/nixpkgs@patched`.
+`NixOS/nixpkgs/49ba75e` / `MyOrg/nixpkgs@patched`.
 
 ### Arguments
 
