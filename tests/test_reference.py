@@ -15,15 +15,31 @@ from gh_cherry_pick.reference import Reference
             "repo/name/2d55dd4a29e74aed8399b0fe4ba638370dd881d9",
             ("repo", "name", "2d55dd4a29e74aed8399b0fe4ba638370dd881d9"),
         ),
+        (
+            "https://github.com/repo/name/commit/2d55dd4",
+            ("repo", "name", "2d55dd4"),
+        ),
+        (
+            "https://github.com/repo/name/commit/2d55dd4a29e74aed8399b0fe4ba638370dd881d9",
+            ("repo", "name", "2d55dd4a29e74aed8399b0fe4ba638370dd881d9"),
+        ),
     ],
-    ids=["short-sha", "long-sha"],
+    ids=["short-sha", "long-sha", "short-sha-url", "long-sha-url"],
 )
 def test_commit_parser(input: str, output: tuple[str, str, str]) -> None:
     assert Reference.parse(input) == Reference(*output, "commit")
 
 
-def test_branch_parser() -> None:
-    assert Reference.parse("repo/name@foo") == Reference(
+@pytest.mark.parametrize(
+    "input",
+    [
+        "repo/name@foo",
+        "https://github.com/repo/name/tree/foo",
+    ],
+    ids=["normal", "url"],
+)
+def test_branch_parser(input: str) -> None:
+    assert Reference.parse(input) == Reference(
         "repo", "name", "foo", ref_type="branch"
     )
 
@@ -36,16 +52,13 @@ def test_branch_parser() -> None:
         "foo,@bar",
         "foo/bar",
         "foo/bar#baz",
+        "https://gitlab.com/foo/bar",
     ],
 )
 def test_reference_invalid_input(input: str) -> None:
     with pytest.raises(
         ValueError,
-        match=(
-            f"^Invalid reference provided: {input!r}\n"
-            + "Must be in format: Owner/RepoName/commit "
-            + "or Owner/RepoName@branch$"
-        ),
+        match=f"^Invalid reference provided: {input!r}",
     ):
         _ = Reference.parse(input)
 

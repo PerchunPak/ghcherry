@@ -35,9 +35,17 @@ class Reference(abc.ABC):
     def parse(cls, input: str) -> te.Self:
         error = ValueError(
             f"Invalid reference provided: {input!r}\n"
-            + "Must be in format: Owner/RepoName/commit "
-            + "or Owner/RepoName@branch"
+            + "Supported formats:\n"
+            + "- Owner/RepoName/commit\n"
+            + "- Owner/RepoName@branch\n"
+            + "- https://github.com/Owner/RepoName/commit/09588bb\n"
+            + "- https://github.com/Owner/RepoName/tree/branch"
         )
+
+        if input.startswith("https://github.com/"):
+            input = input.removeprefix("https://github.com/")
+            input = input.replace("/commit/", "/")
+            input = input.replace("/tree/", "@")
 
         try:
             repo_owner, other = input.split("/", 1)
