@@ -1,20 +1,19 @@
 from __future__ import annotations
 
 import abc
+import dataclasses
 import re
 import typing as t
 
-import attrs
-import typing_extensions as te
-
 if t.TYPE_CHECKING:
     import cyclopts
+    import typing_extensions as te
 
 SHA1_REGEX = re.compile(r"^\b[0-9a-f]{7,40}\b$")
 GITHUB_REPO_REGEX = re.compile(r"^[\w\d.\-_]+")
 
 
-@attrs.define(frozen=True)
+@dataclasses.dataclass(frozen=True)
 class Reference(abc.ABC):
     repo_owner: str
     repo_name: str

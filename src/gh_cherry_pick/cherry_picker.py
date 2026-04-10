@@ -1,12 +1,12 @@
+import dataclasses
 import typing as t
 
-import attrs
 import httpx
 
 from gh_cherry_pick.reference import Reference
 
 
-@attrs.frozen
+@dataclasses.dataclass(frozen=True)
 class CherryPicker:
     client: httpx.AsyncClient
     target: Reference
