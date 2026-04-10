@@ -84,6 +84,10 @@ async def main(
     if first_hard_reset_to is not None:
         first_hard_reset_to.assert_is("commit", meta="--first-hard-reset-to")
 
+    print(f"Cherry-picking {len(refs)} references to {target.repr}:")
+    print("\n".join(f"- {ref.repr}" for ref in refs))
+    print()
+
     async with httpx.AsyncClient(
         headers={
             "Accept": "application/vnd.github+json",
