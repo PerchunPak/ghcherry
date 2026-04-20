@@ -164,3 +164,34 @@ class CherryPicker:
                 },
             )
         ).raise_for_status()
+
+    async def get_head_commit(self, branch: Reference) -> Reference:
+        if branch.ref_type != "branch":
+            raise ValueError(
+                "You can get HEAD commit only on branches, "
+                + f"but the function got {branch.repr}"
+            )
+        response = await self.client.get(
+            f"https://api.github.com/repos/{branch.repo}/branches/{branch.ref}"
+        )
+
+        if response.status_code == 404:
+            raise RuntimeError(
+                "You tried to cherry-pick into a branch that "
+                + f"doesn't exist ({branch.repr})"
+            )
+        _ = response.raise_for_status()
+
+        json = response.json()
+
+        # better safe than sorry
+        commit_url = t.cast("str", json["commit"]["url"])
+        commit_url = commit_url.removeprefix("https://api.github.com/repos/")
+        repo_owner, repo_name, *_ = commit_url.split("/")
+
+        return Reference(
+            repo_owner=repo_owner,
+            repo_name=repo_name,
+            ref=json["commit"]["sha"],
+            ref_type="commit",
+        )

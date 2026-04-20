@@ -89,7 +89,8 @@ async def main(
     if first_hard_reset_to is not None:
         first_hard_reset_to.assert_is("commit", meta="--first-hard-reset-to")
 
-    print(f"Cherry-picking {len(refs)} references to {target.repr}:")
+    s = "s" if len(refs) > 1 else ""
+    print(f"Cherry-picking {len(refs)} reference{s} to {target.repr}:")
     print("\n".join(f"- {ref.repr}" for ref in refs))
     print()
 
@@ -101,13 +102,23 @@ async def main(
         }
     ) as session:
         cherry_picker = CherryPicker(session, target)
-        if first_hard_reset_to:
-            await cherry_picker.hard_reset_target_to(first_hard_reset_to)
-        for ref in refs:
-            if ref.ref_type == "commit":
-                await cherry_picker.cherry_pick_commit(ref)
-            else:
-                await cherry_picker.merge_branch(ref)
+        original_commit = await cherry_picker.get_head_commit(target)
+
+        try:
+            if first_hard_reset_to:
+                await cherry_picker.hard_reset_target_to(first_hard_reset_to)
+            for ref in refs:
+                if ref.ref_type == "commit":
+                    await cherry_picker.cherry_pick_commit(ref)
+                else:
+                    await cherry_picker.merge_branch(ref)
+        except Exception:
+            print(
+                "\nFailed to cherry-pick commits, rolling back to the "
+                + f"original commit ({original_commit.repr})"
+            )
+            await cherry_picker.hard_reset_target_to(original_commit)
+            raise
 
 
 if __name__ == "__main__":
