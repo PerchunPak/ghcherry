@@ -133,7 +133,6 @@ class CherryPicker:
         self, commit: Reference, commit_info: dict[str, t.Any]
     ) -> str:
         commit_message = commit_info["commit"]["message"]
-        print(f"Message: {commit_message}")
 
         commit_message += f"\n\n(cherry-picked from commit {commit.ref})"
         commit_message += f"\n(from repository https://github.com/{commit.repo})"
