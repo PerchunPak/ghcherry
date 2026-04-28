@@ -18,7 +18,7 @@ class Reference:
     repo_name: str
 
     ref: str
-    ref_type: t.Literal["branch", "commit"]
+    ref_type: t.Literal["commit", "branch"]
 
     @property
     def repo(self) -> str:
@@ -82,10 +82,10 @@ class Reference:
         return cls.parse(tokens[0].value)
 
     def assert_is(self, ref_type: str, *, meta: str) -> None:
-        if ref_type == "branch":
-            format = "Owner/RepoName@branch"
-        else:
+        if ref_type == "commit":
             format = "Owner/RepoName/commit"
+        else:
+            format = "Owner/RepoName@branch"
 
         if self.ref_type != ref_type:
             raise ValueError(
