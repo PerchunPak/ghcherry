@@ -1,4 +1,5 @@
 import os
+import sys
 import typing as t
 
 import cyclopts
@@ -9,6 +10,14 @@ from gh_cherry_pick.logs import setup_logging
 from gh_cherry_pick.reference import Reference
 
 app = cyclopts.App(name="gh-cherry-pick")
+
+
+def validate_pr_commits_limit(_: type, pr_commits_limit: int) -> None:
+    if 0 < pr_commits_limit > 250:
+        raise ValueError(
+            "It cannot be bigger than 250, "
+            + "as GitHub API can only return first 250 commits"
+        )
 
 
 @app.meta.default
@@ -38,6 +47,7 @@ async def main(
         cyclopts.Parameter(
             help="Target branch to which to apply cherry-picks",
             required=True,
+            validator=lambda _, target: target.assert_is("branch", meta="target"),
             converter=Reference.parse_cyclopts,
             n_tokens=1,
             accepts_keys=False,
@@ -47,7 +57,9 @@ async def main(
         Reference | None,
         cyclopts.Parameter(
             help="Hard reset target to this commit, before doing anything else",
-            required=False,
+            validator=lambda _, target: target.assert_is(
+                "commit", meta="--first-hard-reset-to"
+            ),
             converter=Reference.parse_cyclopts,
             n_tokens=1,
             accepts_keys=False,
@@ -59,7 +71,8 @@ async def main(
             help=(
                 "If you specify PR to cherry-pick, this is the maximum amount of "
                 + "commits that the pull request can have"
-            )
+            ),
+            validator=validate_pr_commits_limit,
         ),
     ] = 30,
     github_token: t.Annotated[
@@ -100,18 +113,13 @@ async def main(
     if not github_token:
         github_token = os.environ.get("GITHUB_TOKEN")
     if not github_token:
-        raise ValueError(
-            "You need to specify GitHub token either using --token "
-            + "parameter or $GITHUB_TOKEN environment variable"
+        app.error_console.print(
+            cyclopts.CycloptsPanel(
+                "You need to specify GitHub token either using --token "
+                + "parameter or the $GITHUB_TOKEN environment variable"
+            )
         )
-    target.assert_is("branch", meta="target")
-    if first_hard_reset_to is not None:
-        first_hard_reset_to.assert_is("commit", meta="--first-hard-reset-to")
-    if pr_commits_limit > 250:
-        raise ValueError(
-            "--pr-commits-limit cannot be bigger than 250. "
-            + "GitHub API can only return first 250 commits"
-        )
+        sys.exit(1)
 
     async with httpx.AsyncClient(
         headers={
