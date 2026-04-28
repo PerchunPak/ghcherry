@@ -45,6 +45,7 @@ async def main(
     target: t.Annotated[
         Reference,
         cyclopts.Parameter(
+            alias="-T",
             help="Target branch to which to apply cherry-picks",
             required=True,
             validator=lambda _, target: target.assert_is("branch", meta="target"),
@@ -56,6 +57,7 @@ async def main(
     first_hard_reset_to: t.Annotated[
         Reference | None,
         cyclopts.Parameter(
+            alias="-H",
             help="Hard reset target to this commit, before doing anything else",
             validator=lambda _, target: target.assert_is(
                 "commit", meta="--first-hard-reset-to"
@@ -78,7 +80,7 @@ async def main(
     github_token: t.Annotated[
         str | None,
         cyclopts.Parameter(
-            name=["-t", "--token"],
+            alias="-t",
             help=(
                 "GitHub token. If not specified, falls back to the "
                 + "$GITHUB_TOKEN environment variable"
