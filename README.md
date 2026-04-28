@@ -58,8 +58,8 @@ commits to cherry-pick.
 
 Each commit/branch/PR is applied in order and builds upon the previous result.
 
-- `--target`: Required. Target branch to which to apply cherry-picks.
-- `--first-hard-reset-to`: Hard reset target to this commit, before doing
+- `--target`/`-T`: Required. Target branch to which to apply cherry-picks.
+- `--first-hard-reset-to`/`-H`: Hard reset target to this commit, before doing
   anything else.
 - `--pr-commits-limit`: If you specify PR to cherry-pick, this is the maximum
   amount of commits that the pull request can have.
