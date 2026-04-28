@@ -1,11 +1,6 @@
-# NOTE: there is no other way to write tests for the `cherry_pick_commit`
-# method, without just mocking every request. those are meaningless tests and
-# won't really catch any bugs.
-#
-# I use this tool daily anyway, so it *shouldn't* be a problem.
 import typing as t
 
-from gh_cherry_pick.cherry_picker import CherryPicker
+from gh_cherry_pick.logic._cherry_picker import CherryPicker
 from gh_cherry_pick.reference import Reference
 
 

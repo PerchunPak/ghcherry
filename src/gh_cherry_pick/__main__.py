@@ -4,7 +4,7 @@ import typing as t
 import cyclopts
 import httpx
 
-from gh_cherry_pick.cherry_picker import CherryPicker
+from gh_cherry_pick.logic import APIClient
 from gh_cherry_pick.logs import setup_logging
 from gh_cherry_pick.reference import Reference
 
@@ -120,8 +120,8 @@ async def main(
             "X-GitHub-Api-Version": "2026-03-10",
         }
     ) as session:
-        cherry_picker = CherryPicker(session, target)
-        original_commit = await cherry_picker.get_head_commit(target)
+        api = APIClient(session, target)
+        original_commit = await api.get_head_commit(target)
 
         refs_to_process: list[Reference] = []
         for ref in refs:
@@ -130,9 +130,7 @@ async def main(
                 continue
 
             refs_to_process.extend(
-                await cherry_picker.get_pr_commits(
-                    ref, commit_limit=pr_commits_limit
-                )
+                await api.get_pr_commits(ref, commit_limit=pr_commits_limit)
             )
 
         s = "s" if len(refs_to_process) > 1 else ""
@@ -145,18 +143,18 @@ async def main(
 
         try:
             if first_hard_reset_to:
-                await cherry_picker.hard_reset_target_to(first_hard_reset_to)
+                await api.hard_reset_target_to(first_hard_reset_to)
             for ref in refs_to_process:
                 if ref.ref_type == "commit":
-                    await cherry_picker.cherry_pick_commit(ref)
+                    await api.cherry_pick_commit(ref)
                 else:
-                    await cherry_picker.merge_branch(ref)
+                    await api.merge_branch(ref)
         except Exception:
             print(
                 "\nFailed to cherry-pick commits, rolling back to the "
                 + f"original commit ({original_commit.repr})"
             )
-            await cherry_picker.hard_reset_target_to(original_commit)
+            await api.hard_reset_target_to(original_commit)
             raise
 
 
