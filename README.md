@@ -34,34 +34,51 @@ This tool requires a classic token with `repo` and `workflow` permissions
 (`workflow` is needed only if commits update `.github/workflows` files) or
 a fine-grained token with `contents` and `workflows` permissions.
 
+If you want to cherry-pick commits in private repositories, the tool also
+requires `Pull requests` permission for fine-grained tokens.
+
 ```bash
 GITHUB_TOKEN=ghp_... gh-cherry-pick \
   --target MyOrg/nixpkgs@patched \
   `: # cherry-pick these commits` \
   NixOS/nixpkgs/3f5ba52cc4701bf341457dfe5f6cb58e0cbb7f83 \
-  NixOS/nixpkgs/49ba75edefc8dc4fee45482f77a280ddd7121797 \
+  NixOS/nixpkgs/49ba75ed \
   `: # or merge the entire branch!` \
-  Someone/nixpkgs@pr-branch
+  Someone/nixpkgs@pr-branch \
+  `: # or even cherry-pick every commit for a pull request!` \
+  NixOS/nixpkgs#380691
 ```
-
-You can also pass links like `https://github.com/NixOS/nixpkgs/commit/4e92bbc`
-or `https://github.com/MyOrg/nixpkgs/tree/patched` instead of
-`NixOS/nixpkgs/49ba75e` / `MyOrg/nixpkgs@patched`.
 
 ### Arguments
 
-You can give commits and/or branches as positional arguments. Commits will be
-cherry-picked, while branches will be merged into the target. Each
-commit/branch is applied in order and builds on the previous result.
+You can give commits, branches and or pull requests as positional arguments.
+Commits will be cherry-picked, while branches will be merged into the target.
+For pull requests, we will collect PR's commits and add it to the list of
+commits to cherry-pick.
 
-Format for branches is `Owner/Repo@branch` and for commits is
-`Owner/Repo/commit`.
+Each commit/branch/PR is applied in order and builds upon the previous result.
 
 - `--target`: Required. Target branch to which to apply cherry-picks.
 - `--first-hard-reset-to`: Hard reset target to this commit, before doing
   anything else.
+- `--pr-commits-limit`: If you specify PR to cherry-pick, this is the maximum
+  amount of commits that the pull request can have.
 - `--token`/`-t`: GitHub token. If not specified, falls back to the
   `$GITHUB_TOKEN` environment variable.
+
+### Supported formats:
+
+For commits:
+- Owner/RepoName/commit
+- https://github.com/Owner/RepoName/commit/09588bb
+
+For branches:
+- Owner/RepoName@branch
+- https://github.com/Owner/RepoName/tree/branch
+
+For pull requests:
+- Owner/RepoName#123
+- https://github.com/Owner/RepoName/pull/123
 
 ## Development
 

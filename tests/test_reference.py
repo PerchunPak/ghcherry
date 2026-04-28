@@ -1,3 +1,4 @@
+import re
 import typing as t
 
 import cyclopts.utils
@@ -47,18 +48,33 @@ def test_branch_parser(input: str) -> None:
 @pytest.mark.parametrize(
     "input",
     [
+        "repo/name#123",
+        "https://github.com/repo/name/pull/123",
+    ],
+    ids=["normal", "url"],
+)
+def test_pr_parser(input: str) -> None:
+    assert Reference.parse(input) == Reference(
+        "repo", "name", "123", ref_type="pr"
+    )
+
+
+@pytest.mark.parametrize(
+    "input",
+    [
         "foo",
         "foo/",
         "foo,@bar",
         "foo/bar",
-        "foo/bar#baz",
+        "foo/bar$",
         "https://gitlab.com/foo/bar",
     ],
 )
 def test_reference_invalid_input(input: str) -> None:
+    input_repr = re.escape(repr(input))
     with pytest.raises(
         ValueError,
-        match=f"^Invalid reference provided: {input!r}",
+        match=f"^Invalid reference provided: {input_repr}",
     ):
         _ = Reference.parse(input)
 
@@ -72,6 +88,17 @@ def test_commit_invalid_sha() -> None:
         ),
     ):
         _ = Reference.parse("foo/bar/sha@")
+
+
+def test_invalid_pr_number() -> None:
+    with pytest.raises(
+        ValueError,
+        match=(
+            "^You have provided an invalid pull request number: 'foo'\n"
+            + r"\(full input foo/bar#foo\)$"
+        ),
+    ):
+        _ = Reference.parse("foo/bar#foo")
 
 
 @pytest.mark.parametrize("ref_type", ["commit", "branch"])

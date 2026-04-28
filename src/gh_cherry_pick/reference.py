@@ -11,6 +11,13 @@ if t.TYPE_CHECKING:
 SHA1_REGEX = re.compile(r"^\b[0-9a-f]{7,40}\b$")
 GITHUB_REPO_REGEX = re.compile(r"^[\w\d.\-_]+")
 
+SEPARATOR_TO_REF_TYPE = {
+    "/": "commit",
+    "@": "branch",
+    "#": "pr",
+}
+REF_TYPE_TO_SEPARATOR = {v: k for k, v in SEPARATOR_TO_REF_TYPE.items()}
+
 
 @dataclasses.dataclass(frozen=True)
 class Reference:
@@ -18,7 +25,7 @@ class Reference:
     repo_name: str
 
     ref: str
-    ref_type: t.Literal["commit", "branch"]
+    ref_type: t.Literal["commit", "branch", "pr"]
 
     @property
     def repo(self) -> str:
@@ -26,7 +33,7 @@ class Reference:
 
     @property
     def repr(self) -> str:
-        separator = "/" if self.ref_type == "commit" else "@"
+        separator = REF_TYPE_TO_SEPARATOR[self.ref_type]
         return self.repo + separator + self.ref
 
     @classmethod
@@ -36,14 +43,17 @@ class Reference:
             + "Supported formats:\n"
             + "- Owner/RepoName/commit\n"
             + "- Owner/RepoName@branch\n"
+            + "- Owner/RepoName#pr-number\n"
             + "- https://github.com/Owner/RepoName/commit/09588bb\n"
-            + "- https://github.com/Owner/RepoName/tree/branch"
+            + "- https://github.com/Owner/RepoName/tree/branch\n"
+            + "- https://github.com/Owner/RepoName/pull/123"
         )
 
         if input.startswith("https://github.com/"):
             input = input.removeprefix("https://github.com/")
             input = input.replace("/commit/", "/")
             input = input.replace("/tree/", "@")
+            input = input.replace("/pull/", "#")
 
         try:
             repo_owner, other = input.split("/", 1)
@@ -60,13 +70,18 @@ class Reference:
             raise error
         separator, ref = trailing_item[0], trailing_item[1:]
 
-        if separator not in ("/", "@"):
+        if separator not in ("/", "@", "#"):
             raise error
-        ref_type = "commit" if separator == "/" else "branch"
+        ref_type = SEPARATOR_TO_REF_TYPE[separator]
 
         if ref_type == "commit" and not SHA1_REGEX.match(ref):
             raise ValueError(
                 f"You have provided an invalid commit SHA1: {ref!r}\n"
+                + f"(full input {input})"
+            )
+        if ref_type == "pr" and not ref.isdigit():
+            raise ValueError(
+                f"You have provided an invalid pull request number: {ref!r}\n"
                 + f"(full input {input})"
             )
 
@@ -74,7 +89,7 @@ class Reference:
             repo_name=repo_name,
             repo_owner=repo_owner,
             ref=ref,
-            ref_type=ref_type,
+            ref_type=ref_type,  # pyright: ignore[reportArgumentType] # str != literal
         )
 
     @classmethod
@@ -84,8 +99,10 @@ class Reference:
     def assert_is(self, ref_type: str, *, meta: str) -> None:
         if ref_type == "commit":
             format = "Owner/RepoName/commit"
-        else:
+        elif ref_type == "branch":
             format = "Owner/RepoName@branch"
+        else:
+            format = "Owner/RepoName#123"
 
         if self.ref_type != ref_type:
             raise ValueError(
