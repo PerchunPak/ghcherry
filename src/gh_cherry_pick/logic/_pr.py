@@ -29,7 +29,7 @@ class PRApiClient(AbstractAPIClient):
             )
             commits.extend(batch)
 
-            if len(commits) >= commit_limit:
+            if len(commits) >= commit_limit and commit_limit != 250:
                 raise RuntimeError(
                     f"Pull request {pr.repr} contains more commits "
                     + f"({len(commits)}) than the specified limit "
