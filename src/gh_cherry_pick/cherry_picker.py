@@ -19,6 +19,7 @@ class CherryPicker:
         solution are left in the same places, so it is easier to compare with
         the spec.
         """
+        commit.assert_is("commit", meta="commit to cherry-pick")
         print(f"Cherry-picking {commit.repr} to {self.target.repr}...")
         commit_info = (
             (
@@ -153,6 +154,7 @@ class CherryPicker:
         ).raise_for_status()
 
     async def merge_branch(self, branch: Reference) -> None:
+        branch.assert_is("branch", meta="branch to merge")
         print(f"Merging {branch.repr} into {self.target.repr}...")
         _ = (
             await self.client.post(
@@ -165,6 +167,7 @@ class CherryPicker:
         ).raise_for_status()
 
     async def get_head_commit(self, branch: Reference) -> Reference:
+        # using if instead of `assert_is` for better error message
         if branch.ref_type != "branch":
             raise ValueError(
                 "You can get HEAD commit only on branches, "
