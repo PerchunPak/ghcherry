@@ -59,5 +59,5 @@ class PRApiClient(AbstractAPIClient):
                 )
             )
 
-        print(f"Fetched {len(commits_parsed)} commits for {pr.ref}")
+        print(f"Fetched {len(commits_parsed)} commits for {pr.repr}")
         return commits_parsed
