@@ -142,6 +142,11 @@ class CherryPicker:
 
     async def hard_reset_target_to(self, commit: Reference) -> None:
         print(f"Hard resetting {self.target.repr} to {commit.repr}...")
+        if len(commit.ref) != 40:
+            raise ValueError(
+                "For `--first-hard-reset-to`, GitHub requires the full commit SHA"
+            )
+
         _ = (
             await self.client.patch(
                 f"https://api.github.com/repos/{self.target.repo}"
