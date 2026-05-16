@@ -88,3 +88,7 @@ uv run pre-commit install
 ```
 
 Then commit your changes and send a pull request!
+
+## Thanks
+
+- [`mcstatus`](https://github.com/py-mine/mcstatus) for linter settings
