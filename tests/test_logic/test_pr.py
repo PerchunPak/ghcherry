@@ -5,8 +5,8 @@ import pytest
 from faker import Faker
 from pytest_httpx import HTTPXMock
 
-from gh_cherry_pick.logic._pr import PRApiClient
-from gh_cherry_pick.reference import Reference
+from ghcherry.logic._pr import PRApiClient
+from ghcherry.reference import Reference
 
 
 def gen_commit(sha: str) -> dict[str, t.Any]:

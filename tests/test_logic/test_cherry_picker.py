@@ -1,7 +1,7 @@
 import typing as t
 
-from gh_cherry_pick.logic._cherry_picker import CherryPicker
-from gh_cherry_pick.reference import Reference
+from ghcherry.logic._cherry_picker import CherryPicker
+from ghcherry.reference import Reference
 
 
 def test_prepare_commit_message() -> None:

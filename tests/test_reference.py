@@ -5,7 +5,7 @@ import cyclopts.utils
 import pytest
 import pytest_mock
 
-from gh_cherry_pick.reference import Reference
+from ghcherry.reference import Reference
 
 
 @pytest.mark.parametrize(

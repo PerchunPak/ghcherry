@@ -1,7 +1,7 @@
 import dataclasses
 import typing as t
 
-from gh_cherry_pick.reference import Reference
+from ghcherry.reference import Reference
 
 from ._abc import AbstractAPIClient
 

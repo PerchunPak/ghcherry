@@ -19,13 +19,13 @@ Requires Python 3.10+, I recommend using [uv](https://docs.astral.sh/uv/), but
 it will work fine with pip or anything else.
 
 ```bash
-uv tool install gh-cherry-pick
+uv tool install ghcherry
 ```
 
 Or run directly without installing:
 
 ```bash
-uvx gh-cherry-pick --help
+uvx ghcherry --help
 ```
 
 ## Usage
@@ -38,7 +38,7 @@ If you want to cherry-pick commits in private repositories, the tool also
 requires `Pull requests` permission for fine-grained tokens.
 
 ```bash
-GITHUB_TOKEN=ghp_... gh-cherry-pick \
+GITHUB_TOKEN=ghp_... ghcherry \
   --target MyOrg/nixpkgs@patched \
   `: # cherry-pick these commits` \
   NixOS/nixpkgs/3f5ba52cc4701bf341457dfe5f6cb58e0cbb7f83 \

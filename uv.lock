@@ -281,7 +281,7 @@ wheels = [
 ]
 
 [[package]]
-name = "gh-cherry-pick"
+name = "ghcherry"
 source = { editable = "." }
 dependencies = [
     { name = "cyclopts" },

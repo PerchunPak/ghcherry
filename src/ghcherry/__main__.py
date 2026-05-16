@@ -5,11 +5,11 @@ import typing as t
 import cyclopts
 import httpx
 
-from gh_cherry_pick.logic import APIClient
-from gh_cherry_pick.logs import setup_logging
-from gh_cherry_pick.reference import Reference
+from ghcherry.logic import APIClient
+from ghcherry.logs import setup_logging
+from ghcherry.reference import Reference
 
-app = cyclopts.App(name="gh-cherry-pick")
+app = cyclopts.App()
 
 
 def validate_pr_commits_limit(_: type, pr_commits_limit: int) -> None:
@@ -112,6 +112,14 @@ async def main(
     - Owner/RepoName#123
     - https://github.com/Owner/RepoName/pull/123
     """
+    if sys.argv[0].endswith("gh-cherry-pick"):
+        app.console.print(
+            "[yellow]"
+            + "`gh-cherry-pick` executable is deprecated, use `ghcherry` instead\n"
+            + "https://github.com/PerchunPak/ghcherry/releases/tag/v1.5.0\n"
+            + "[/]",
+        )
+
     if not github_token:
         github_token = os.environ.get("GITHUB_TOKEN")
     if not github_token:
