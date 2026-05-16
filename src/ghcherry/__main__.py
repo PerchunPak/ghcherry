@@ -20,6 +20,16 @@ def validate_pr_commits_limit(_: type, pr_commits_limit: int) -> None:
         )
 
 
+def validate_target(_type: type[Reference], target: Reference) -> None:
+    target.assert_is("branch", meta="target")
+
+
+def validate_first_hard_reset_to(
+    _type: type[Reference], target: Reference
+) -> None:
+    target.assert_is("commit", meta="--first-hard-reset-to")
+
+
 @app.meta.default
 def callback(
     *tokens: t.Annotated[
@@ -48,7 +58,7 @@ async def main(
             alias="-T",
             help="Target branch to which to apply cherry-picks",
             required=True,
-            validator=lambda _, target: target.assert_is("branch", meta="target"),
+            validator=validate_target,
             converter=Reference.parse_cyclopts,
             n_tokens=1,
             accepts_keys=False,
@@ -59,9 +69,7 @@ async def main(
         cyclopts.Parameter(
             alias="-H",
             help="Hard reset target to this commit, before doing anything else",
-            validator=lambda _, target: target.assert_is(
-                "commit", meta="--first-hard-reset-to"
-            ),
+            validator=validate_first_hard_reset_to,
             converter=Reference.parse_cyclopts,
             n_tokens=1,
             accepts_keys=False,
