@@ -39,7 +39,7 @@ dev = [
 ]
 
 tests = [
-  "faker~=40.19.1",
+  "faker~=40.20.0",
   "pytest~=9.0.2",
   "pytest-asyncio~=1.4.0",
   "pytest-cov~=7.1.0",
@@ -54,7 +54,7 @@ validation = [
 ]
 
 release = [
-  "hatchling~=1.29.0",
+  "hatchling~=1.30.1",
   "uv-dynamic-versioning~=0.14.0"
 ]
 
