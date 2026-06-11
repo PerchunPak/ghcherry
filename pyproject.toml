@@ -39,7 +39,7 @@ dev = [
 ]
 
 tests = [
-  "faker~=40.22.0",
+  "faker~=40.23.0",
   "pytest~=9.0.2",
   "pytest-asyncio~=1.4.0",
   "pytest-cov~=7.1.0",
